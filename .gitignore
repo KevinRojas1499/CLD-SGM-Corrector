@@ -1,4 +1,5 @@
-/piptemp/
-/__pycache__/
-/models/__pycache__/
+/piptemp
+/__pycache__
+/models/__pycache__
+/util/__pycache__
 
