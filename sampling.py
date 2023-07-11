@@ -19,6 +19,8 @@ def get_sampling_fn(config, sde, sampling_shape, eps):
         return get_em_sampler(config, sde, sampling_shape, eps)
     elif sampler_name == 'sscs':
         return get_sscs_sampler(config, sde, sampling_shape, eps)
+    elif sampler_name == 'corrector':
+        return get_corrector_sampler(config,sde, sampling_shape, eps)
     else:
         raise NotImplementedError(
             'Sampler %s is not implemened.' % sampler_name)
@@ -88,6 +90,125 @@ def get_ode_sampler(config, sde, sampling_shape, eps):
 
     return ode_sampler
 
+def get_corrector_sampler(config, sde, sampling_shape, eps):
+
+    gc.collect()
+
+    c_hat = 19.5
+    # gamma = sde.gamma
+    # m_inv = sde.m_inv
+
+    m_inv               = 4.0
+    gamma               = 0.04
+
+    n_lang_iters = config.n_lang_iters
+    h_lang = .01
+
+
+    def step_fn(model, u, t, dt):
+        score_fn = get_score_fn(config, sde, model, train=False)
+        discrete_step_fn = sde.get_discrete_step_fn(
+            mode='reverse', score_fn=score_fn)
+        u, u_mean = discrete_step_fn(u, t, dt)
+        return u, u_mean
+
+    def gradV(x):
+        epss = 1e-5
+        f1 = lambda x : torch.sin(x)
+        return x + c_hat *  f1(x/epss)
+        
+    def fast_discrete_step_fn(u,t,eta):
+        beta = sde.beta_fn(t)
+
+        x,v = torch.chunk(u, 2, dim=1)
+        v = (v + beta * gradV(x) * eta)/(1-gamma * m_inv * beta * eta)
+        x = x - m_inv * beta * v * eta
+        return torch.cat((x,v), dim=1)
+
+
+    def discrete_steps(u, t , dt):
+        beta = sde.beta_fn(t)
+        # eta = 4 * gamma * beta / c_hat**2 
+        eta = 0.001683
+        n_discrete_steps = (int) (dt/eta)
+        print(eta,dt)
+        t = torch.linspace(t + dt, t, n_discrete_steps + 1, dtype=torch.float64)
+        for i in range(n_discrete_steps):
+            dt = torch.abs(t[i+1]- t[i])
+            u = fast_discrete_step_fn(u,t[i],dt)
+        return u
+    
+    def overdamped_langevin_corrector(model, u, t):
+        def _concat(u,x,v):
+            return torch.cat((x,u), dim=1) if config.correct_speed else torch.cat((u,v), dim = 1) 
+
+        tt = torch.ones(
+            u.shape[0], device=u.device, dtype=torch.float64) * t
+        
+        score_fn = get_score_fn(config, sde, model, train=False)
+        for i in range(n_lang_iters):
+            x,v = torch.chunk(u, 2, dim=1)
+            z = v if config.correct_speed else x 
+            z = z + score_fn(u, tt) * h_lang + (2*h_lang)**.5 * torch.randn_like(z)
+
+            u = _concat(z,x,v) 
+        return u
+
+    def underdamped_langevin_corrector(model, uu, t):
+        x,v = torch.chunk(uu, 2, dim=1)
+        u = v if config.correct_speed else x 
+        ones = torch.ones(
+            u.shape[0], device=u.device, dtype=torch.float64)
+        
+        score_fn = get_score_fn(config, sde, model, train=False)
+        gamma_lang = .5
+        
+        for i in range(n_lang_iters):
+            x,v = torch.chunk(u, 2, dim=1)
+            score_t  = score_fn(u,ones*t)
+            x = x + v * h_lang
+            v = v + (score_t - gamma_lang * v ) * h_lang + (2 * gamma_lang * h_lang)**.5 * torch.randn_like(v)
+
+            u = torch.cat((x,v), dim=1)
+        return u 
+    
+    def corrector_sampler(model, u=None):
+        with torch.no_grad():
+            if u is None:
+                x, v = sde.prior_sampling(sampling_shape)
+                if sde.is_augmented:
+                    u = torch.cat((x, v), dim=1)
+                else:
+                    u = x
+
+            n_discrete_steps = config.n_discrete_steps if not config.denoising else config.n_discrete_steps - 1
+            t_final = 1. - eps
+            t = torch.linspace(
+                t_final, 0. , n_discrete_steps + 1, dtype=torch.float64)
+            if config.striding == 'linear':
+                pass
+            elif config.striding == 'quadratic':
+                t = t_final * torch.flip(1 - (t / t_final) ** 2., dims=[0])
+
+            for i in range(n_discrete_steps):
+                dt = torch.abs(t[i + 1] - t[i])
+                u = discrete_steps(u, t[i], dt)
+                # u, _ = step_fn(model, u, t_final - t[i], dt)
+                if config.overdamped_lang:
+                    u = overdamped_langevin_corrector(model, u, t[i+1])
+                else:
+                    u = underdamped_langevin_corrector(model, u, t[i+1])
+
+            if config.denoising:
+                _, u = step_fn(model, u, 1. - eps, eps)
+
+            if sde.is_augmented:
+                x, v = torch.chunk(u, 2, dim=1)
+                return x, v, config.n_discrete_steps
+            else:
+                return u, None, config.n_discrete_steps
+    
+    return corrector_sampler
 
 def get_em_sampler(config, sde, sampling_shape, eps):
     ''' 

@@ -284,8 +284,12 @@ def evaluate(config, workdir):
 
     if config.eval_sample:
         x, _, nfe = sampling_fn(score_model)
+        file_name= f"{config.sampling_method}_{config.n_discrete_steps}_lang_{config.n_lang_iters}.png"
         logging.info('NFE: %d' % nfe)
 
+        plt.xlim(-1,1)
+        plt.ylim(-1,1)
         plt.scatter(x.cpu().numpy()[:, 0], x.cpu().numpy()[:, 1], s=3)
-        plt.savefig(os.path.join(sample_dir, 'sample_%d.png' % global_rank))
+        plt.savefig(os.path.join(sample_dir, file_name))
         plt.close()
+

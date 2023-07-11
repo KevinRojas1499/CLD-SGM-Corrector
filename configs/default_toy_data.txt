@@ -17,9 +17,14 @@ save_freq            = 50000
 save_threshold       = 300000
 
 # Sampling
-sampling_method      = ode
+sampling_method      = corrector
 sampling_eps         = 1e-3
 denoising            = true
+n_discrete_steps     = 50
+ckpt_file            = final_checkpoint.pth
+n_lang_iters         = 15
+correct_speed
+overdamped_lang
 
 # Model
 name                = mlp

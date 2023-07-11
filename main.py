@@ -213,7 +213,7 @@ if __name__ == '__main__':
     p.add('--save_threshold', type=int, default=1)
 
     # Sampling
-    p.add('--sampling_method', choices=['ode', 'em', 'sscs'], default='ode')
+    p.add('--sampling_method', choices=['ode', 'em', 'sscs','corrector'], default='ode')
     p.add('--sampling_solver', default='scipy_solver')
     p.add('--sampling_solver_options',
           type=json.loads, default={'solver': 'RK45'})
@@ -222,8 +222,11 @@ if __name__ == '__main__':
     p.add('--sscs_num_stab', type=float, default=0.)
     p.add('--denoising', action='store_true')
     p.add('--n_discrete_steps', type=int)
+    p.add('--n_lang_iters', type=int)
     p.add('--striding', choices=['linear', 'quadratic'], default='linear')
     p.add('--sampling_eps', type=float)
+    p.add('--correct_speed', action='store_true')
+    p.add('--overdamped_lang', action='store_true')
 
     # Likelihood
     p.add('--likelihood_solver', default='scipy_solver')

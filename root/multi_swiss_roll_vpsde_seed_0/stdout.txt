@@ -1,0 +1,562 @@
+INFO - run_lib_toy.py - 2023-07-04 14:49:01,172 - Namespace(attention_type=None, attn_resolutions=None, autocast_eval=False, autocast_train=False, beta0=4.0, beta1=0.0, beta_type='linear', cc='configs/default_toy_data.txt', center_image=False, ch_mult=None, checkpoint=None, ckpt_file=None, cld_objective='hsm', cont_nbr=None, conv_size=None, data_dim=2, data_location=None, dataset='multimodal_swissroll', denoising=True, device=device(type='cuda', index=0), distributed=True, dropout=0.1, ema_rate=0.999, embedding_type=None, eval_density=False, eval_density_npts=101, eval_fid=False, eval_fid_samples=50000, eval_folder=None, eval_freq=20000, eval_hist_samples=100000, eval_iw_likelihood=False, eval_jacobian_norm=False, eval_likelihood=False, eval_loss=False, eval_loss_variance=False, eval_loss_variance_images=1, eval_sample=False, eval_sample_hist=False, eval_sample_samples=1, eval_seed=0, eval_threshold=1, fid_freq=None, fid_samples_training=None, fid_threshold=1, fir_kernel=None, fourier_scale=None, gamma=0.04, global_rank=0, global_size=1, grad_clip=1.0, image_channels=None, image_size=None, init_scale=None, is_image=False, learning_rate=0.001, likelihood_atol=1e-05, likelihood_eps=1e-05, likelihood_freq=50000, likelihood_hutchinson_type='rademacher', likelihood_rtol=1e-05, likelihood_solver='scipy_solver', likelihood_solver_options={'solver': 'RK45'}, likelihood_threshold=2000000, local_rank=0, log_freq=5000, loss_eps=1e-05, m_inv=4.0, master_address='127.0.0.1', master_port=6020, mixed_score=False, mode='train', n_channels=None, n_discrete_steps=None, n_eval_batches=1, n_gpus_per_node=1, n_likelihood_batches=1, n_nodes=1, n_resblocks=None, n_train_iters=800000, n_warmup_iters=0, name='mlp', node_rank=0, nonlinearity=None, normalization=None, numerical_eps=1e-06, optimizer='Adam', overwrite=False, progressive=None, progressive_combine=None, progressive_input=None, resamp_with_conv=False, resblock_type=None, root='./root/', sampling_atol=1e-05, sampling_batch_size=512, sampling_eps=0.001, sampling_method='ode', sampling_rtol=1e-05, sampling_solver='scipy_solver', sampling_solver_options={'solver': 'RK45'}, save_freq=50000, save_threshold=300000, sc=None, sde='vpsde', seed=0, skip_rescale=False, snapshot_freq=10000, snapshot_threshold=1, sscs_num_stab=0.0, striding='linear', testing_batch_size=512, training_batch_size=512, use_fir=False, weight_decay=0.0, weighting='reweightedv2', workdir='multi_swiss_roll_vpsde')
+INFO - run_lib_toy.py - 2023-07-04 14:49:04,679 - Number of trainable parameters in model: 50306
+INFO - run_lib_toy.py - 2023-07-04 14:49:04,679 - Number of total iterations: 800000
+INFO - run_lib_toy.py - 2023-07-04 14:49:04,755 - Starting training at step 0
+INFO - run_lib_toy.py - 2023-07-04 14:49:05,121 - Iter 1/800000 Loss: 1.9224 Time: 0.366
+INFO - distributed.py - 2023-07-04 14:49:05,123 - Reducer buckets have been rebuilt in this iteration.
+INFO - run_lib_toy.py - 2023-07-04 14:49:20,923 - Iter 5001/800000 Loss: 0.2654 Time: 0.003
+INFO - run_lib_toy.py - 2023-07-04 14:49:36,356 - Saving snapshot checkpoint.
+INFO - ema.py - 2023-07-04 14:49:36,367 - Storing current parameters for restoring later.
+INFO - ema.py - 2023-07-04 14:49:36,367 - Copying EMA parameters to model.
+INFO - ema.py - 2023-07-04 14:49:36,459 - Restoring model parameters.
+INFO - run_lib_toy.py - 2023-07-04 14:49:36,460 - NFE snapshot at step 10000: 135
+INFO - run_lib_toy.py - 2023-07-04 14:49:36,641 - Iter 10001/800000 Loss: 0.2951 Time: 0.006
+INFO - run_lib_toy.py - 2023-07-04 14:49:52,634 - Iter 15001/800000 Loss: 0.2702 Time: 0.003
+INFO - run_lib_toy.py - 2023-07-04 14:50:08,505 - Saving snapshot checkpoint.
+INFO - ema.py - 2023-07-04 14:50:08,508 - Storing current parameters for restoring later.
+INFO - ema.py - 2023-07-04 14:50:08,508 - Copying EMA parameters to model.
+INFO - ema.py - 2023-07-04 14:50:08,600 - Restoring model parameters.
+INFO - run_lib_toy.py - 2023-07-04 14:50:08,600 - NFE snapshot at step 20000: 135
+INFO - run_lib_toy.py - 2023-07-04 14:50:08,685 - Iter 20001/800000 Loss: 0.2302 Time: 0.004
+INFO - run_lib_toy.py - 2023-07-04 14:50:24,624 - Iter 25001/800000 Loss: 0.3323 Time: 0.003
+INFO - run_lib_toy.py - 2023-07-04 14:50:40,650 - Saving snapshot checkpoint.
+INFO - ema.py - 2023-07-04 14:50:40,654 - Storing current parameters for restoring later.
+INFO - ema.py - 2023-07-04 14:50:40,654 - Copying EMA parameters to model.
+INFO - ema.py - 2023-07-04 14:50:40,752 - Restoring model parameters.
+INFO - run_lib_toy.py - 2023-07-04 14:50:40,752 - NFE snapshot at step 30000: 141
+INFO - run_lib_toy.py - 2023-07-04 14:50:40,834 - Iter 30001/800000 Loss: 0.3506 Time: 0.004
+INFO - run_lib_toy.py - 2023-07-04 14:50:56,562 - Iter 35001/800000 Loss: 0.2891 Time: 0.003
+INFO - run_lib_toy.py - 2023-07-04 14:51:12,096 - Saving snapshot checkpoint.
+INFO - ema.py - 2023-07-04 14:51:12,099 - Storing current parameters for restoring later.
+INFO - ema.py - 2023-07-04 14:51:12,100 - Copying EMA parameters to model.
+INFO - ema.py - 2023-07-04 14:51:12,188 - Restoring model parameters.
+INFO - run_lib_toy.py - 2023-07-04 14:51:12,189 - NFE snapshot at step 40000: 129
+INFO - run_lib_toy.py - 2023-07-04 14:51:12,276 - Iter 40001/800000 Loss: 0.2900 Time: 0.005
+INFO - run_lib_toy.py - 2023-07-04 14:51:27,788 - Iter 45001/800000 Loss: 0.2970 Time: 0.003
+INFO - run_lib_toy.py - 2023-07-04 14:51:43,327 - Saving snapshot checkpoint.
+INFO - ema.py - 2023-07-04 14:51:43,330 - Storing current parameters for restoring later.
+INFO - ema.py - 2023-07-04 14:51:43,331 - Copying EMA parameters to model.
+INFO - ema.py - 2023-07-04 14:51:43,428 - Restoring model parameters.
+INFO - run_lib_toy.py - 2023-07-04 14:51:43,428 - NFE snapshot at step 50000: 141
+INFO - run_lib_toy.py - 2023-07-04 14:51:43,517 - Iter 50001/800000 Loss: 0.2710 Time: 0.005
+INFO - run_lib_toy.py - 2023-07-04 14:51:59,124 - Iter 55001/800000 Loss: 0.2666 Time: 0.003
+INFO - run_lib_toy.py - 2023-07-04 14:52:14,623 - Saving snapshot checkpoint.
+INFO - ema.py - 2023-07-04 14:52:14,626 - Storing current parameters for restoring later.
+INFO - ema.py - 2023-07-04 14:52:14,627 - Copying EMA parameters to model.
+INFO - ema.py - 2023-07-04 14:52:14,723 - Restoring model parameters.
+INFO - run_lib_toy.py - 2023-07-04 14:52:14,723 - NFE snapshot at step 60000: 141
+INFO - run_lib_toy.py - 2023-07-04 14:52:14,825 - Iter 60001/800000 Loss: 0.2998 Time: 0.004
+INFO - run_lib_toy.py - 2023-07-04 14:52:30,358 - Iter 65001/800000 Loss: 0.2877 Time: 0.003
+INFO - run_lib_toy.py - 2023-07-04 14:52:46,205 - Saving snapshot checkpoint.
+INFO - ema.py - 2023-07-04 14:52:46,208 - Storing current parameters for restoring later.
+INFO - ema.py - 2023-07-04 14:52:46,208 - Copying EMA parameters to model.
+INFO - ema.py - 2023-07-04 14:52:46,310 - Restoring model parameters.
+INFO - run_lib_toy.py - 2023-07-04 14:52:46,310 - NFE snapshot at step 70000: 147
+INFO - run_lib_toy.py - 2023-07-04 14:52:46,397 - Iter 70001/800000 Loss: 0.2823 Time: 0.004
+INFO - run_lib_toy.py - 2023-07-04 14:53:01,993 - Iter 75001/800000 Loss: 0.2574 Time: 0.003
+INFO - run_lib_toy.py - 2023-07-04 14:53:17,918 - Saving snapshot checkpoint.
+INFO - ema.py - 2023-07-04 14:53:17,921 - Storing current parameters for restoring later.
+INFO - ema.py - 2023-07-04 14:53:17,922 - Copying EMA parameters to model.
+INFO - ema.py - 2023-07-04 14:53:18,015 - Restoring model parameters.
+INFO - run_lib_toy.py - 2023-07-04 14:53:18,015 - NFE snapshot at step 80000: 135
+INFO - run_lib_toy.py - 2023-07-04 14:53:18,103 - Iter 80001/800000 Loss: 0.2844 Time: 0.005
+INFO - run_lib_toy.py - 2023-07-04 14:53:34,423 - Iter 85001/800000 Loss: 0.3112 Time: 0.003
+INFO - run_lib_toy.py - 2023-07-04 14:53:50,648 - Saving snapshot checkpoint.
+INFO - ema.py - 2023-07-04 14:53:50,651 - Storing current parameters for restoring later.
+INFO - ema.py - 2023-07-04 14:53:50,651 - Copying EMA parameters to model.
+INFO - ema.py - 2023-07-04 14:53:50,750 - Restoring model parameters.
+INFO - run_lib_toy.py - 2023-07-04 14:53:50,750 - NFE snapshot at step 90000: 141
+INFO - run_lib_toy.py - 2023-07-04 14:53:50,837 - Iter 90001/800000 Loss: 0.2497 Time: 0.004
+INFO - run_lib_toy.py - 2023-07-04 14:54:06,989 - Iter 95001/800000 Loss: 0.3010 Time: 0.003
+INFO - run_lib_toy.py - 2023-07-04 14:54:23,121 - Saving snapshot checkpoint.
+INFO - ema.py - 2023-07-04 14:54:23,124 - Storing current parameters for restoring later.
+INFO - ema.py - 2023-07-04 14:54:23,125 - Copying EMA parameters to model.
+INFO - ema.py - 2023-07-04 14:54:23,221 - Restoring model parameters.
+INFO - run_lib_toy.py - 2023-07-04 14:54:23,222 - NFE snapshot at step 100000: 141
+INFO - run_lib_toy.py - 2023-07-04 14:54:23,311 - Iter 100001/800000 Loss: 0.2488 Time: 0.004
+INFO - run_lib_toy.py - 2023-07-04 14:54:39,567 - Iter 105001/800000 Loss: 0.2388 Time: 0.003
+INFO - run_lib_toy.py - 2023-07-04 14:54:55,842 - Saving snapshot checkpoint.
+INFO - ema.py - 2023-07-04 14:54:55,845 - Storing current parameters for restoring later.
+INFO - ema.py - 2023-07-04 14:54:55,845 - Copying EMA parameters to model.
+INFO - ema.py - 2023-07-04 14:54:55,938 - Restoring model parameters.
+INFO - run_lib_toy.py - 2023-07-04 14:54:55,938 - NFE snapshot at step 110000: 135
+INFO - run_lib_toy.py - 2023-07-04 14:54:56,025 - Iter 110001/800000 Loss: 0.3367 Time: 0.004
+INFO - run_lib_toy.py - 2023-07-04 14:55:12,177 - Iter 115001/800000 Loss: 0.2944 Time: 0.003
+INFO - run_lib_toy.py - 2023-07-04 14:55:28,453 - Saving snapshot checkpoint.
+INFO - ema.py - 2023-07-04 14:55:28,456 - Storing current parameters for restoring later.
+INFO - ema.py - 2023-07-04 14:55:28,456 - Copying EMA parameters to model.
+INFO - ema.py - 2023-07-04 14:55:28,549 - Restoring model parameters.
+INFO - run_lib_toy.py - 2023-07-04 14:55:28,550 - NFE snapshot at step 120000: 135
+INFO - run_lib_toy.py - 2023-07-04 14:55:28,637 - Iter 120001/800000 Loss: 0.2909 Time: 0.004
+INFO - run_lib_toy.py - 2023-07-04 14:55:44,928 - Iter 125001/800000 Loss: 0.2634 Time: 0.003
+INFO - run_lib_toy.py - 2023-07-04 14:56:01,205 - Saving snapshot checkpoint.
+INFO - ema.py - 2023-07-04 14:56:01,208 - Storing current parameters for restoring later.
+INFO - ema.py - 2023-07-04 14:56:01,208 - Copying EMA parameters to model.
+INFO - ema.py - 2023-07-04 14:56:01,307 - Restoring model parameters.
+INFO - run_lib_toy.py - 2023-07-04 14:56:01,307 - NFE snapshot at step 130000: 141
+INFO - run_lib_toy.py - 2023-07-04 14:56:01,396 - Iter 130001/800000 Loss: 0.3236 Time: 0.004
+INFO - run_lib_toy.py - 2023-07-04 14:56:17,244 - Iter 135001/800000 Loss: 0.3026 Time: 0.003
+INFO - run_lib_toy.py - 2023-07-04 14:56:33,285 - Saving snapshot checkpoint.
+INFO - ema.py - 2023-07-04 14:56:33,288 - Storing current parameters for restoring later.
+INFO - ema.py - 2023-07-04 14:56:33,288 - Copying EMA parameters to model.
+INFO - ema.py - 2023-07-04 14:56:33,393 - Restoring model parameters.
+INFO - run_lib_toy.py - 2023-07-04 14:56:33,393 - NFE snapshot at step 140000: 153
+INFO - run_lib_toy.py - 2023-07-04 14:56:33,479 - Iter 140001/800000 Loss: 0.2640 Time: 0.004
+INFO - run_lib_toy.py - 2023-07-04 14:56:49,515 - Iter 145001/800000 Loss: 0.2912 Time: 0.004
+INFO - run_lib_toy.py - 2023-07-04 14:57:05,650 - Saving snapshot checkpoint.
+INFO - ema.py - 2023-07-04 14:57:05,653 - Storing current parameters for restoring later.
+INFO - ema.py - 2023-07-04 14:57:05,654 - Copying EMA parameters to model.
+INFO - ema.py - 2023-07-04 14:57:05,751 - Restoring model parameters.
+INFO - run_lib_toy.py - 2023-07-04 14:57:05,751 - NFE snapshot at step 150000: 141
+INFO - run_lib_toy.py - 2023-07-04 14:57:05,839 - Iter 150001/800000 Loss: 0.2564 Time: 0.004
+INFO - run_lib_toy.py - 2023-07-04 14:57:22,051 - Iter 155001/800000 Loss: 0.2901 Time: 0.003
+INFO - run_lib_toy.py - 2023-07-04 14:57:37,972 - Saving snapshot checkpoint.
+INFO - ema.py - 2023-07-04 14:57:37,975 - Storing current parameters for restoring later.
+INFO - ema.py - 2023-07-04 14:57:37,975 - Copying EMA parameters to model.
+INFO - ema.py - 2023-07-04 14:57:38,075 - Restoring model parameters.
+INFO - run_lib_toy.py - 2023-07-04 14:57:38,075 - NFE snapshot at step 160000: 147
+INFO - run_lib_toy.py - 2023-07-04 14:57:38,162 - Iter 160001/800000 Loss: 0.2716 Time: 0.004
+INFO - run_lib_toy.py - 2023-07-04 14:57:54,106 - Iter 165001/800000 Loss: 0.3062 Time: 0.003
+INFO - run_lib_toy.py - 2023-07-04 14:58:09,878 - Saving snapshot checkpoint.
+INFO - ema.py - 2023-07-04 14:58:09,881 - Storing current parameters for restoring later.
+INFO - ema.py - 2023-07-04 14:58:09,881 - Copying EMA parameters to model.
+INFO - ema.py - 2023-07-04 14:58:09,983 - Restoring model parameters.
+INFO - run_lib_toy.py - 2023-07-04 14:58:09,983 - NFE snapshot at step 170000: 147
+INFO - run_lib_toy.py - 2023-07-04 14:58:10,082 - Iter 170001/800000 Loss: 0.2544 Time: 0.004
+INFO - run_lib_toy.py - 2023-07-04 14:58:25,798 - Iter 175001/800000 Loss: 0.3134 Time: 0.003
+INFO - run_lib_toy.py - 2023-07-04 14:58:41,639 - Saving snapshot checkpoint.
+INFO - ema.py - 2023-07-04 14:58:41,642 - Storing current parameters for restoring later.
+INFO - ema.py - 2023-07-04 14:58:41,643 - Copying EMA parameters to model.
+INFO - ema.py - 2023-07-04 14:58:41,731 - Restoring model parameters.
+INFO - run_lib_toy.py - 2023-07-04 14:58:41,732 - NFE snapshot at step 180000: 129
+INFO - run_lib_toy.py - 2023-07-04 14:58:41,820 - Iter 180001/800000 Loss: 0.2843 Time: 0.004
+INFO - run_lib_toy.py - 2023-07-04 14:58:57,437 - Iter 185001/800000 Loss: 0.3511 Time: 0.003
+INFO - run_lib_toy.py - 2023-07-04 14:59:13,070 - Saving snapshot checkpoint.
+INFO - ema.py - 2023-07-04 14:59:13,073 - Storing current parameters for restoring later.
+INFO - ema.py - 2023-07-04 14:59:13,074 - Copying EMA parameters to model.
+INFO - ema.py - 2023-07-04 14:59:13,175 - Restoring model parameters.
+INFO - run_lib_toy.py - 2023-07-04 14:59:13,175 - NFE snapshot at step 190000: 147
+INFO - run_lib_toy.py - 2023-07-04 14:59:13,261 - Iter 190001/800000 Loss: 0.2714 Time: 0.004
+INFO - run_lib_toy.py - 2023-07-04 14:59:28,965 - Iter 195001/800000 Loss: 0.2788 Time: 0.003
+INFO - run_lib_toy.py - 2023-07-04 14:59:44,642 - Saving snapshot checkpoint.
+INFO - ema.py - 2023-07-04 14:59:44,645 - Storing current parameters for restoring later.
+INFO - ema.py - 2023-07-04 14:59:44,646 - Copying EMA parameters to model.
+INFO - ema.py - 2023-07-04 14:59:44,743 - Restoring model parameters.
+INFO - run_lib_toy.py - 2023-07-04 14:59:44,743 - NFE snapshot at step 200000: 141
+INFO - run_lib_toy.py - 2023-07-04 14:59:44,832 - Iter 200001/800000 Loss: 0.3324 Time: 0.004
+INFO - run_lib_toy.py - 2023-07-04 15:00:00,646 - Iter 205001/800000 Loss: 0.3014 Time: 0.003
+INFO - run_lib_toy.py - 2023-07-04 15:00:16,392 - Saving snapshot checkpoint.
+INFO - ema.py - 2023-07-04 15:00:16,395 - Storing current parameters for restoring later.
+INFO - ema.py - 2023-07-04 15:00:16,396 - Copying EMA parameters to model.
+INFO - ema.py - 2023-07-04 15:00:16,493 - Restoring model parameters.
+INFO - run_lib_toy.py - 2023-07-04 15:00:16,493 - NFE snapshot at step 210000: 141
+INFO - run_lib_toy.py - 2023-07-04 15:00:16,579 - Iter 210001/800000 Loss: 0.2786 Time: 0.004
+INFO - run_lib_toy.py - 2023-07-04 15:00:32,255 - Iter 215001/800000 Loss: 0.2940 Time: 0.003
+INFO - run_lib_toy.py - 2023-07-04 15:00:47,780 - Saving snapshot checkpoint.
+INFO - ema.py - 2023-07-04 15:00:47,783 - Storing current parameters for restoring later.
+INFO - ema.py - 2023-07-04 15:00:47,784 - Copying EMA parameters to model.
+INFO - ema.py - 2023-07-04 15:00:47,880 - Restoring model parameters.
+INFO - run_lib_toy.py - 2023-07-04 15:00:47,881 - NFE snapshot at step 220000: 141
+INFO - run_lib_toy.py - 2023-07-04 15:00:47,969 - Iter 220001/800000 Loss: 0.3099 Time: 0.004
+INFO - run_lib_toy.py - 2023-07-04 15:01:03,562 - Iter 225001/800000 Loss: 0.3279 Time: 0.003
+INFO - run_lib_toy.py - 2023-07-04 15:01:19,615 - Saving snapshot checkpoint.
+INFO - ema.py - 2023-07-04 15:01:19,618 - Storing current parameters for restoring later.
+INFO - ema.py - 2023-07-04 15:01:19,618 - Copying EMA parameters to model.
+INFO - ema.py - 2023-07-04 15:01:19,715 - Restoring model parameters.
+INFO - run_lib_toy.py - 2023-07-04 15:01:19,716 - NFE snapshot at step 230000: 141
+INFO - run_lib_toy.py - 2023-07-04 15:01:19,802 - Iter 230001/800000 Loss: 0.3009 Time: 0.004
+INFO - run_lib_toy.py - 2023-07-04 15:01:35,532 - Iter 235001/800000 Loss: 0.2407 Time: 0.003
+INFO - run_lib_toy.py - 2023-07-04 15:01:51,122 - Saving snapshot checkpoint.
+INFO - ema.py - 2023-07-04 15:01:51,125 - Storing current parameters for restoring later.
+INFO - ema.py - 2023-07-04 15:01:51,126 - Copying EMA parameters to model.
+INFO - ema.py - 2023-07-04 15:01:51,222 - Restoring model parameters.
+INFO - run_lib_toy.py - 2023-07-04 15:01:51,223 - NFE snapshot at step 240000: 141
+INFO - run_lib_toy.py - 2023-07-04 15:01:51,307 - Iter 240001/800000 Loss: 0.2750 Time: 0.004
+INFO - run_lib_toy.py - 2023-07-04 15:02:06,853 - Iter 245001/800000 Loss: 0.2997 Time: 0.003
+INFO - run_lib_toy.py - 2023-07-04 15:02:22,892 - Saving snapshot checkpoint.
+INFO - ema.py - 2023-07-04 15:02:22,895 - Storing current parameters for restoring later.
+INFO - ema.py - 2023-07-04 15:02:22,895 - Copying EMA parameters to model.
+INFO - ema.py - 2023-07-04 15:02:22,999 - Restoring model parameters.
+INFO - run_lib_toy.py - 2023-07-04 15:02:23,000 - NFE snapshot at step 250000: 153
+INFO - run_lib_toy.py - 2023-07-04 15:02:23,210 - Iter 250001/800000 Loss: 0.2953 Time: 0.004
+INFO - run_lib_toy.py - 2023-07-04 15:02:39,052 - Iter 255001/800000 Loss: 0.2948 Time: 0.003
+INFO - run_lib_toy.py - 2023-07-04 15:02:54,658 - Saving snapshot checkpoint.
+INFO - ema.py - 2023-07-04 15:02:54,661 - Storing current parameters for restoring later.
+INFO - ema.py - 2023-07-04 15:02:54,661 - Copying EMA parameters to model.
+INFO - ema.py - 2023-07-04 15:02:54,755 - Restoring model parameters.
+INFO - run_lib_toy.py - 2023-07-04 15:02:54,755 - NFE snapshot at step 260000: 135
+INFO - run_lib_toy.py - 2023-07-04 15:02:54,860 - Iter 260001/800000 Loss: 0.2984 Time: 0.005
+INFO - run_lib_toy.py - 2023-07-04 15:03:10,758 - Iter 265001/800000 Loss: 0.2740 Time: 0.003
+INFO - run_lib_toy.py - 2023-07-04 15:03:26,943 - Saving snapshot checkpoint.
+INFO - ema.py - 2023-07-04 15:03:26,946 - Storing current parameters for restoring later.
+INFO - ema.py - 2023-07-04 15:03:26,946 - Copying EMA parameters to model.
+INFO - ema.py - 2023-07-04 15:03:27,048 - Restoring model parameters.
+INFO - run_lib_toy.py - 2023-07-04 15:03:27,048 - NFE snapshot at step 270000: 147
+INFO - run_lib_toy.py - 2023-07-04 15:03:27,134 - Iter 270001/800000 Loss: 0.2607 Time: 0.004
+INFO - run_lib_toy.py - 2023-07-04 15:03:43,249 - Iter 275001/800000 Loss: 0.2913 Time: 0.003
+INFO - run_lib_toy.py - 2023-07-04 15:03:59,272 - Saving snapshot checkpoint.
+INFO - ema.py - 2023-07-04 15:03:59,275 - Storing current parameters for restoring later.
+INFO - ema.py - 2023-07-04 15:03:59,276 - Copying EMA parameters to model.
+INFO - ema.py - 2023-07-04 15:03:59,383 - Restoring model parameters.
+INFO - run_lib_toy.py - 2023-07-04 15:03:59,384 - NFE snapshot at step 280000: 153
+INFO - run_lib_toy.py - 2023-07-04 15:03:59,471 - Iter 280001/800000 Loss: 0.2534 Time: 0.004
+INFO - run_lib_toy.py - 2023-07-04 15:04:15,287 - Iter 285001/800000 Loss: 0.2935 Time: 0.003
+INFO - run_lib_toy.py - 2023-07-04 15:04:31,249 - Saving snapshot checkpoint.
+INFO - ema.py - 2023-07-04 15:04:31,252 - Storing current parameters for restoring later.
+INFO - ema.py - 2023-07-04 15:04:31,252 - Copying EMA parameters to model.
+INFO - ema.py - 2023-07-04 15:04:31,352 - Restoring model parameters.
+INFO - run_lib_toy.py - 2023-07-04 15:04:31,352 - NFE snapshot at step 290000: 141
+INFO - run_lib_toy.py - 2023-07-04 15:04:31,439 - Iter 290001/800000 Loss: 0.3007 Time: 0.004
+INFO - run_lib_toy.py - 2023-07-04 15:04:47,415 - Iter 295001/800000 Loss: 0.3897 Time: 0.003
+INFO - run_lib_toy.py - 2023-07-04 15:05:03,463 - Saving snapshot checkpoint.
+INFO - ema.py - 2023-07-04 15:05:03,466 - Storing current parameters for restoring later.
+INFO - ema.py - 2023-07-04 15:05:03,467 - Copying EMA parameters to model.
+INFO - ema.py - 2023-07-04 15:05:03,556 - Restoring model parameters.
+INFO - run_lib_toy.py - 2023-07-04 15:05:03,556 - NFE snapshot at step 300000: 129
+INFO - run_lib_toy.py - 2023-07-04 15:05:03,644 - Iter 300001/800000 Loss: 0.2891 Time: 0.004
+INFO - run_lib_toy.py - 2023-07-04 15:05:19,636 - Iter 305001/800000 Loss: 0.2790 Time: 0.003
+INFO - run_lib_toy.py - 2023-07-04 15:05:35,722 - Saving snapshot checkpoint.
+INFO - ema.py - 2023-07-04 15:05:35,725 - Storing current parameters for restoring later.
+INFO - ema.py - 2023-07-04 15:05:35,725 - Copying EMA parameters to model.
+INFO - ema.py - 2023-07-04 15:05:35,822 - Restoring model parameters.
+INFO - run_lib_toy.py - 2023-07-04 15:05:35,823 - NFE snapshot at step 310000: 141
+INFO - run_lib_toy.py - 2023-07-04 15:05:35,911 - Iter 310001/800000 Loss: 0.3153 Time: 0.004
+INFO - run_lib_toy.py - 2023-07-04 15:05:52,009 - Iter 315001/800000 Loss: 0.2968 Time: 0.003
+INFO - run_lib_toy.py - 2023-07-04 15:06:08,174 - Saving snapshot checkpoint.
+INFO - ema.py - 2023-07-04 15:06:08,178 - Storing current parameters for restoring later.
+INFO - ema.py - 2023-07-04 15:06:08,178 - Copying EMA parameters to model.
+INFO - ema.py - 2023-07-04 15:06:08,284 - Restoring model parameters.
+INFO - run_lib_toy.py - 2023-07-04 15:06:08,284 - NFE snapshot at step 320000: 153
+INFO - run_lib_toy.py - 2023-07-04 15:06:08,373 - Iter 320001/800000 Loss: 0.2554 Time: 0.004
+INFO - run_lib_toy.py - 2023-07-04 15:06:24,539 - Iter 325001/800000 Loss: 0.2612 Time: 0.003
+INFO - run_lib_toy.py - 2023-07-04 15:06:40,781 - Saving snapshot checkpoint.
+INFO - ema.py - 2023-07-04 15:06:40,784 - Storing current parameters for restoring later.
+INFO - ema.py - 2023-07-04 15:06:40,784 - Copying EMA parameters to model.
+INFO - ema.py - 2023-07-04 15:06:40,877 - Restoring model parameters.
+INFO - run_lib_toy.py - 2023-07-04 15:06:40,877 - NFE snapshot at step 330000: 135
+INFO - run_lib_toy.py - 2023-07-04 15:06:40,963 - Iter 330001/800000 Loss: 0.2912 Time: 0.004
+INFO - run_lib_toy.py - 2023-07-04 15:06:57,238 - Iter 335001/800000 Loss: 0.2885 Time: 0.003
+INFO - run_lib_toy.py - 2023-07-04 15:07:13,614 - Saving snapshot checkpoint.
+INFO - ema.py - 2023-07-04 15:07:13,617 - Storing current parameters for restoring later.
+INFO - ema.py - 2023-07-04 15:07:13,618 - Copying EMA parameters to model.
+INFO - ema.py - 2023-07-04 15:07:13,714 - Restoring model parameters.
+INFO - run_lib_toy.py - 2023-07-04 15:07:13,714 - NFE snapshot at step 340000: 141
+INFO - run_lib_toy.py - 2023-07-04 15:07:13,805 - Iter 340001/800000 Loss: 0.2898 Time: 0.005
+INFO - run_lib_toy.py - 2023-07-04 15:07:30,184 - Iter 345001/800000 Loss: 0.2958 Time: 0.003
+INFO - run_lib_toy.py - 2023-07-04 15:07:46,148 - Saving snapshot checkpoint.
+INFO - ema.py - 2023-07-04 15:07:46,151 - Storing current parameters for restoring later.
+INFO - ema.py - 2023-07-04 15:07:46,151 - Copying EMA parameters to model.
+INFO - ema.py - 2023-07-04 15:07:46,254 - Restoring model parameters.
+INFO - run_lib_toy.py - 2023-07-04 15:07:46,254 - NFE snapshot at step 350000: 153
+INFO - run_lib_toy.py - 2023-07-04 15:07:46,344 - Iter 350001/800000 Loss: 0.3446 Time: 0.004
+INFO - run_lib_toy.py - 2023-07-04 15:08:02,542 - Iter 355001/800000 Loss: 0.3255 Time: 0.003
+INFO - run_lib_toy.py - 2023-07-04 15:08:18,817 - Saving snapshot checkpoint.
+INFO - ema.py - 2023-07-04 15:08:18,820 - Storing current parameters for restoring later.
+INFO - ema.py - 2023-07-04 15:08:18,820 - Copying EMA parameters to model.
+INFO - ema.py - 2023-07-04 15:08:18,918 - Restoring model parameters.
+INFO - run_lib_toy.py - 2023-07-04 15:08:18,918 - NFE snapshot at step 360000: 141
+INFO - run_lib_toy.py - 2023-07-04 15:08:19,009 - Iter 360001/800000 Loss: 0.3264 Time: 0.004
+INFO - run_lib_toy.py - 2023-07-04 15:08:35,278 - Iter 365001/800000 Loss: 0.2477 Time: 0.004
+INFO - run_lib_toy.py - 2023-07-04 15:08:51,383 - Saving snapshot checkpoint.
+INFO - ema.py - 2023-07-04 15:08:51,386 - Storing current parameters for restoring later.
+INFO - ema.py - 2023-07-04 15:08:51,386 - Copying EMA parameters to model.
+INFO - ema.py - 2023-07-04 15:08:51,477 - Restoring model parameters.
+INFO - run_lib_toy.py - 2023-07-04 15:08:51,477 - NFE snapshot at step 370000: 129
+INFO - run_lib_toy.py - 2023-07-04 15:08:51,564 - Iter 370001/800000 Loss: 0.3329 Time: 0.004
+INFO - run_lib_toy.py - 2023-07-04 15:09:07,734 - Iter 375001/800000 Loss: 0.2933 Time: 0.003
+INFO - run_lib_toy.py - 2023-07-04 15:09:23,918 - Saving snapshot checkpoint.
+INFO - ema.py - 2023-07-04 15:09:23,921 - Storing current parameters for restoring later.
+INFO - ema.py - 2023-07-04 15:09:23,922 - Copying EMA parameters to model.
+INFO - ema.py - 2023-07-04 15:09:24,019 - Restoring model parameters.
+INFO - run_lib_toy.py - 2023-07-04 15:09:24,020 - NFE snapshot at step 380000: 141
+INFO - run_lib_toy.py - 2023-07-04 15:09:24,108 - Iter 380001/800000 Loss: 0.2530 Time: 0.004
+INFO - run_lib_toy.py - 2023-07-04 15:09:40,306 - Iter 385001/800000 Loss: 0.2812 Time: 0.003
+INFO - run_lib_toy.py - 2023-07-04 15:09:56,536 - Saving snapshot checkpoint.
+INFO - ema.py - 2023-07-04 15:09:56,539 - Storing current parameters for restoring later.
+INFO - ema.py - 2023-07-04 15:09:56,539 - Copying EMA parameters to model.
+INFO - ema.py - 2023-07-04 15:09:56,640 - Restoring model parameters.
+INFO - run_lib_toy.py - 2023-07-04 15:09:56,640 - NFE snapshot at step 390000: 147
+INFO - run_lib_toy.py - 2023-07-04 15:09:56,729 - Iter 390001/800000 Loss: 0.3243 Time: 0.004
+INFO - run_lib_toy.py - 2023-07-04 15:10:12,836 - Iter 395001/800000 Loss: 0.2850 Time: 0.003
+INFO - run_lib_toy.py - 2023-07-04 15:10:29,030 - Saving snapshot checkpoint.
+INFO - ema.py - 2023-07-04 15:10:29,034 - Storing current parameters for restoring later.
+INFO - ema.py - 2023-07-04 15:10:29,034 - Copying EMA parameters to model.
+INFO - ema.py - 2023-07-04 15:10:29,136 - Restoring model parameters.
+INFO - run_lib_toy.py - 2023-07-04 15:10:29,136 - NFE snapshot at step 400000: 147
+INFO - run_lib_toy.py - 2023-07-04 15:10:29,227 - Iter 400001/800000 Loss: 0.3152 Time: 0.004
+INFO - run_lib_toy.py - 2023-07-04 15:10:45,569 - Iter 405001/800000 Loss: 0.2656 Time: 0.003
+INFO - run_lib_toy.py - 2023-07-04 15:11:01,846 - Saving snapshot checkpoint.
+INFO - ema.py - 2023-07-04 15:11:01,850 - Storing current parameters for restoring later.
+INFO - ema.py - 2023-07-04 15:11:01,850 - Copying EMA parameters to model.
+INFO - ema.py - 2023-07-04 15:11:01,948 - Restoring model parameters.
+INFO - run_lib_toy.py - 2023-07-04 15:11:01,948 - NFE snapshot at step 410000: 141
+INFO - run_lib_toy.py - 2023-07-04 15:11:02,039 - Iter 410001/800000 Loss: 0.2481 Time: 0.004
+INFO - run_lib_toy.py - 2023-07-04 15:11:17,812 - Iter 415001/800000 Loss: 0.3527 Time: 0.003
+INFO - run_lib_toy.py - 2023-07-04 15:11:33,493 - Saving snapshot checkpoint.
+INFO - ema.py - 2023-07-04 15:11:33,497 - Storing current parameters for restoring later.
+INFO - ema.py - 2023-07-04 15:11:33,497 - Copying EMA parameters to model.
+INFO - ema.py - 2023-07-04 15:11:33,590 - Restoring model parameters.
+INFO - run_lib_toy.py - 2023-07-04 15:11:33,591 - NFE snapshot at step 420000: 135
+INFO - run_lib_toy.py - 2023-07-04 15:11:33,679 - Iter 420001/800000 Loss: 0.2943 Time: 0.004
+INFO - run_lib_toy.py - 2023-07-04 15:11:49,320 - Iter 425001/800000 Loss: 0.2806 Time: 0.003
+INFO - run_lib_toy.py - 2023-07-04 15:12:05,240 - Saving snapshot checkpoint.
+INFO - ema.py - 2023-07-04 15:12:05,244 - Storing current parameters for restoring later.
+INFO - ema.py - 2023-07-04 15:12:05,245 - Copying EMA parameters to model.
+INFO - ema.py - 2023-07-04 15:12:05,343 - Restoring model parameters.
+INFO - run_lib_toy.py - 2023-07-04 15:12:05,343 - NFE snapshot at step 430000: 141
+INFO - run_lib_toy.py - 2023-07-04 15:12:05,430 - Iter 430001/800000 Loss: 0.3094 Time: 0.004
+INFO - run_lib_toy.py - 2023-07-04 15:12:21,336 - Iter 435001/800000 Loss: 0.2446 Time: 0.003
+INFO - run_lib_toy.py - 2023-07-04 15:12:37,160 - Saving snapshot checkpoint.
+INFO - ema.py - 2023-07-04 15:12:37,163 - Storing current parameters for restoring later.
+INFO - ema.py - 2023-07-04 15:12:37,163 - Copying EMA parameters to model.
+INFO - ema.py - 2023-07-04 15:12:37,265 - Restoring model parameters.
+INFO - run_lib_toy.py - 2023-07-04 15:12:37,266 - NFE snapshot at step 440000: 147
+INFO - run_lib_toy.py - 2023-07-04 15:12:37,353 - Iter 440001/800000 Loss: 0.3384 Time: 0.004
+INFO - run_lib_toy.py - 2023-07-04 15:12:53,159 - Iter 445001/800000 Loss: 0.2729 Time: 0.003
+INFO - run_lib_toy.py - 2023-07-04 15:13:08,812 - Saving snapshot checkpoint.
+INFO - ema.py - 2023-07-04 15:13:08,815 - Storing current parameters for restoring later.
+INFO - ema.py - 2023-07-04 15:13:08,815 - Copying EMA parameters to model.
+INFO - ema.py - 2023-07-04 15:13:08,916 - Restoring model parameters.
+INFO - run_lib_toy.py - 2023-07-04 15:13:08,916 - NFE snapshot at step 450000: 141
+INFO - run_lib_toy.py - 2023-07-04 15:13:09,006 - Iter 450001/800000 Loss: 0.3189 Time: 0.004
+INFO - run_lib_toy.py - 2023-07-04 15:13:24,836 - Iter 455001/800000 Loss: 0.2636 Time: 0.003
+INFO - run_lib_toy.py - 2023-07-04 15:13:40,672 - Saving snapshot checkpoint.
+INFO - ema.py - 2023-07-04 15:13:40,675 - Storing current parameters for restoring later.
+INFO - ema.py - 2023-07-04 15:13:40,675 - Copying EMA parameters to model.
+INFO - ema.py - 2023-07-04 15:13:40,775 - Restoring model parameters.
+INFO - run_lib_toy.py - 2023-07-04 15:13:40,775 - NFE snapshot at step 460000: 147
+INFO - run_lib_toy.py - 2023-07-04 15:13:40,864 - Iter 460001/800000 Loss: 0.3038 Time: 0.004
+INFO - run_lib_toy.py - 2023-07-04 15:13:56,946 - Iter 465001/800000 Loss: 0.2969 Time: 0.003
+INFO - run_lib_toy.py - 2023-07-04 15:14:13,177 - Saving snapshot checkpoint.
+INFO - ema.py - 2023-07-04 15:14:13,180 - Storing current parameters for restoring later.
+INFO - ema.py - 2023-07-04 15:14:13,180 - Copying EMA parameters to model.
+INFO - ema.py - 2023-07-04 15:14:13,277 - Restoring model parameters.
+INFO - run_lib_toy.py - 2023-07-04 15:14:13,277 - NFE snapshot at step 470000: 141
+INFO - run_lib_toy.py - 2023-07-04 15:14:13,364 - Iter 470001/800000 Loss: 0.3153 Time: 0.004
+INFO - run_lib_toy.py - 2023-07-04 15:14:29,542 - Iter 475001/800000 Loss: 0.2656 Time: 0.003
+INFO - run_lib_toy.py - 2023-07-04 15:14:45,816 - Saving snapshot checkpoint.
+INFO - ema.py - 2023-07-04 15:14:45,819 - Storing current parameters for restoring later.
+INFO - ema.py - 2023-07-04 15:14:45,819 - Copying EMA parameters to model.
+INFO - ema.py - 2023-07-04 15:14:45,916 - Restoring model parameters.
+INFO - run_lib_toy.py - 2023-07-04 15:14:45,917 - NFE snapshot at step 480000: 141
+INFO - run_lib_toy.py - 2023-07-04 15:14:46,003 - Iter 480001/800000 Loss: 0.3244 Time: 0.004
+INFO - run_lib_toy.py - 2023-07-04 15:15:01,860 - Iter 485001/800000 Loss: 0.3171 Time: 0.003
+INFO - run_lib_toy.py - 2023-07-04 15:15:17,534 - Saving snapshot checkpoint.
+INFO - ema.py - 2023-07-04 15:15:17,537 - Storing current parameters for restoring later.
+INFO - ema.py - 2023-07-04 15:15:17,538 - Copying EMA parameters to model.
+INFO - ema.py - 2023-07-04 15:15:17,639 - Restoring model parameters.
+INFO - run_lib_toy.py - 2023-07-04 15:15:17,639 - NFE snapshot at step 490000: 147
+INFO - run_lib_toy.py - 2023-07-04 15:15:17,730 - Iter 490001/800000 Loss: 0.2726 Time: 0.004
+INFO - run_lib_toy.py - 2023-07-04 15:15:33,797 - Iter 495001/800000 Loss: 0.3000 Time: 0.003
+INFO - run_lib_toy.py - 2023-07-04 15:15:49,713 - Saving snapshot checkpoint.
+INFO - ema.py - 2023-07-04 15:15:49,716 - Storing current parameters for restoring later.
+INFO - ema.py - 2023-07-04 15:15:49,716 - Copying EMA parameters to model.
+INFO - ema.py - 2023-07-04 15:15:49,809 - Restoring model parameters.
+INFO - run_lib_toy.py - 2023-07-04 15:15:49,809 - NFE snapshot at step 500000: 135
+INFO - run_lib_toy.py - 2023-07-04 15:15:49,899 - Iter 500001/800000 Loss: 0.2578 Time: 0.004
+INFO - run_lib_toy.py - 2023-07-04 15:16:05,464 - Iter 505001/800000 Loss: 0.3189 Time: 0.003
+INFO - run_lib_toy.py - 2023-07-04 15:16:21,248 - Saving snapshot checkpoint.
+INFO - ema.py - 2023-07-04 15:16:21,251 - Storing current parameters for restoring later.
+INFO - ema.py - 2023-07-04 15:16:21,251 - Copying EMA parameters to model.
+INFO - ema.py - 2023-07-04 15:16:21,348 - Restoring model parameters.
+INFO - run_lib_toy.py - 2023-07-04 15:16:21,349 - NFE snapshot at step 510000: 141
+INFO - run_lib_toy.py - 2023-07-04 15:16:21,436 - Iter 510001/800000 Loss: 0.2890 Time: 0.004
+INFO - run_lib_toy.py - 2023-07-04 15:16:37,439 - Iter 515001/800000 Loss: 0.2895 Time: 0.003
+INFO - run_lib_toy.py - 2023-07-04 15:16:53,587 - Saving snapshot checkpoint.
+INFO - ema.py - 2023-07-04 15:16:53,590 - Storing current parameters for restoring later.
+INFO - ema.py - 2023-07-04 15:16:53,591 - Copying EMA parameters to model.
+INFO - ema.py - 2023-07-04 15:16:53,692 - Restoring model parameters.
+INFO - run_lib_toy.py - 2023-07-04 15:16:53,692 - NFE snapshot at step 520000: 147
+INFO - run_lib_toy.py - 2023-07-04 15:16:53,780 - Iter 520001/800000 Loss: 0.3138 Time: 0.004
+INFO - run_lib_toy.py - 2023-07-04 15:17:09,695 - Iter 525001/800000 Loss: 0.2626 Time: 0.003
+INFO - run_lib_toy.py - 2023-07-04 15:17:25,828 - Saving snapshot checkpoint.
+INFO - ema.py - 2023-07-04 15:17:25,971 - Storing current parameters for restoring later.
+INFO - ema.py - 2023-07-04 15:17:25,971 - Copying EMA parameters to model.
+INFO - ema.py - 2023-07-04 15:17:26,072 - Restoring model parameters.
+INFO - run_lib_toy.py - 2023-07-04 15:17:26,072 - NFE snapshot at step 530000: 147
+INFO - run_lib_toy.py - 2023-07-04 15:17:26,159 - Iter 530001/800000 Loss: 0.2750 Time: 0.004
+INFO - run_lib_toy.py - 2023-07-04 15:17:42,348 - Iter 535001/800000 Loss: 0.2563 Time: 0.003
+INFO - run_lib_toy.py - 2023-07-04 15:17:58,669 - Saving snapshot checkpoint.
+INFO - ema.py - 2023-07-04 15:17:58,672 - Storing current parameters for restoring later.
+INFO - ema.py - 2023-07-04 15:17:58,672 - Copying EMA parameters to model.
+INFO - ema.py - 2023-07-04 15:17:58,766 - Restoring model parameters.
+INFO - run_lib_toy.py - 2023-07-04 15:17:58,766 - NFE snapshot at step 540000: 135
+INFO - run_lib_toy.py - 2023-07-04 15:17:58,854 - Iter 540001/800000 Loss: 0.2939 Time: 0.004
+INFO - run_lib_toy.py - 2023-07-04 15:18:14,625 - Iter 545001/800000 Loss: 0.2581 Time: 0.003
+INFO - run_lib_toy.py - 2023-07-04 15:18:30,398 - Saving snapshot checkpoint.
+INFO - ema.py - 2023-07-04 15:18:30,401 - Storing current parameters for restoring later.
+INFO - ema.py - 2023-07-04 15:18:30,402 - Copying EMA parameters to model.
+INFO - ema.py - 2023-07-04 15:18:30,507 - Restoring model parameters.
+INFO - run_lib_toy.py - 2023-07-04 15:18:30,507 - NFE snapshot at step 550000: 153
+INFO - run_lib_toy.py - 2023-07-04 15:18:30,597 - Iter 550001/800000 Loss: 0.2899 Time: 0.004
+INFO - run_lib_toy.py - 2023-07-04 15:18:46,153 - Iter 555001/800000 Loss: 0.3075 Time: 0.003
+INFO - run_lib_toy.py - 2023-07-04 15:19:01,796 - Saving snapshot checkpoint.
+INFO - ema.py - 2023-07-04 15:19:01,800 - Storing current parameters for restoring later.
+INFO - ema.py - 2023-07-04 15:19:01,800 - Copying EMA parameters to model.
+INFO - ema.py - 2023-07-04 15:19:01,901 - Restoring model parameters.
+INFO - run_lib_toy.py - 2023-07-04 15:19:01,902 - NFE snapshot at step 560000: 147
+INFO - run_lib_toy.py - 2023-07-04 15:19:01,987 - Iter 560001/800000 Loss: 0.2901 Time: 0.004
+INFO - run_lib_toy.py - 2023-07-04 15:19:17,492 - Iter 565001/800000 Loss: 0.3026 Time: 0.003
+INFO - run_lib_toy.py - 2023-07-04 15:19:33,300 - Saving snapshot checkpoint.
+INFO - ema.py - 2023-07-04 15:19:33,303 - Storing current parameters for restoring later.
+INFO - ema.py - 2023-07-04 15:19:33,303 - Copying EMA parameters to model.
+INFO - ema.py - 2023-07-04 15:19:33,409 - Restoring model parameters.
+INFO - run_lib_toy.py - 2023-07-04 15:19:33,409 - NFE snapshot at step 570000: 153
+INFO - run_lib_toy.py - 2023-07-04 15:19:33,497 - Iter 570001/800000 Loss: 0.2863 Time: 0.004
+INFO - run_lib_toy.py - 2023-07-04 15:19:49,608 - Iter 575001/800000 Loss: 0.2611 Time: 0.003
+INFO - run_lib_toy.py - 2023-07-04 15:20:05,878 - Saving snapshot checkpoint.
+INFO - ema.py - 2023-07-04 15:20:05,881 - Storing current parameters for restoring later.
+INFO - ema.py - 2023-07-04 15:20:05,881 - Copying EMA parameters to model.
+INFO - ema.py - 2023-07-04 15:20:05,983 - Restoring model parameters.
+INFO - run_lib_toy.py - 2023-07-04 15:20:05,983 - NFE snapshot at step 580000: 147
+INFO - run_lib_toy.py - 2023-07-04 15:20:06,070 - Iter 580001/800000 Loss: 0.2904 Time: 0.004
+INFO - run_lib_toy.py - 2023-07-04 15:20:22,311 - Iter 585001/800000 Loss: 0.3130 Time: 0.003
+INFO - run_lib_toy.py - 2023-07-04 15:20:38,299 - Saving snapshot checkpoint.
+INFO - ema.py - 2023-07-04 15:20:38,302 - Storing current parameters for restoring later.
+INFO - ema.py - 2023-07-04 15:20:38,302 - Copying EMA parameters to model.
+INFO - ema.py - 2023-07-04 15:20:38,395 - Restoring model parameters.
+INFO - run_lib_toy.py - 2023-07-04 15:20:38,396 - NFE snapshot at step 590000: 135
+INFO - run_lib_toy.py - 2023-07-04 15:20:38,501 - Iter 590001/800000 Loss: 0.2966 Time: 0.005
+INFO - run_lib_toy.py - 2023-07-04 15:20:54,803 - Iter 595001/800000 Loss: 0.3149 Time: 0.003
+INFO - run_lib_toy.py - 2023-07-04 15:21:11,121 - Saving snapshot checkpoint.
+INFO - ema.py - 2023-07-04 15:21:11,124 - Storing current parameters for restoring later.
+INFO - ema.py - 2023-07-04 15:21:11,124 - Copying EMA parameters to model.
+INFO - ema.py - 2023-07-04 15:21:11,229 - Restoring model parameters.
+INFO - run_lib_toy.py - 2023-07-04 15:21:11,229 - NFE snapshot at step 600000: 153
+INFO - run_lib_toy.py - 2023-07-04 15:21:11,323 - Iter 600001/800000 Loss: 0.3010 Time: 0.005
+INFO - run_lib_toy.py - 2023-07-04 15:21:27,305 - Iter 605001/800000 Loss: 0.2955 Time: 0.003
+INFO - run_lib_toy.py - 2023-07-04 15:21:43,157 - Saving snapshot checkpoint.
+INFO - ema.py - 2023-07-04 15:21:43,160 - Storing current parameters for restoring later.
+INFO - ema.py - 2023-07-04 15:21:43,160 - Copying EMA parameters to model.
+INFO - ema.py - 2023-07-04 15:21:43,255 - Restoring model parameters.
+INFO - run_lib_toy.py - 2023-07-04 15:21:43,255 - NFE snapshot at step 610000: 141
+INFO - run_lib_toy.py - 2023-07-04 15:21:43,343 - Iter 610001/800000 Loss: 0.2896 Time: 0.005
+INFO - run_lib_toy.py - 2023-07-04 15:21:59,264 - Iter 615001/800000 Loss: 0.2720 Time: 0.003
+INFO - run_lib_toy.py - 2023-07-04 15:22:15,082 - Saving snapshot checkpoint.
+INFO - ema.py - 2023-07-04 15:22:15,088 - Storing current parameters for restoring later.
+INFO - ema.py - 2023-07-04 15:22:15,089 - Copying EMA parameters to model.
+INFO - ema.py - 2023-07-04 15:22:15,191 - Restoring model parameters.
+INFO - run_lib_toy.py - 2023-07-04 15:22:15,192 - NFE snapshot at step 620000: 153
+INFO - run_lib_toy.py - 2023-07-04 15:22:15,280 - Iter 620001/800000 Loss: 0.2723 Time: 0.004
+INFO - run_lib_toy.py - 2023-07-04 15:22:31,151 - Iter 625001/800000 Loss: 0.3187 Time: 0.003
+INFO - run_lib_toy.py - 2023-07-04 15:22:47,153 - Saving snapshot checkpoint.
+INFO - ema.py - 2023-07-04 15:22:47,157 - Storing current parameters for restoring later.
+INFO - ema.py - 2023-07-04 15:22:47,157 - Copying EMA parameters to model.
+INFO - ema.py - 2023-07-04 15:22:47,269 - Restoring model parameters.
+INFO - run_lib_toy.py - 2023-07-04 15:22:47,270 - NFE snapshot at step 630000: 165
+INFO - run_lib_toy.py - 2023-07-04 15:22:47,359 - Iter 630001/800000 Loss: 0.2413 Time: 0.004
+INFO - run_lib_toy.py - 2023-07-04 15:23:03,286 - Iter 635001/800000 Loss: 0.3030 Time: 0.003
+INFO - run_lib_toy.py - 2023-07-04 15:23:19,136 - Saving snapshot checkpoint.
+INFO - ema.py - 2023-07-04 15:23:19,139 - Storing current parameters for restoring later.
+INFO - ema.py - 2023-07-04 15:23:19,140 - Copying EMA parameters to model.
+INFO - ema.py - 2023-07-04 15:23:19,231 - Restoring model parameters.
+INFO - run_lib_toy.py - 2023-07-04 15:23:19,231 - NFE snapshot at step 640000: 135
+INFO - run_lib_toy.py - 2023-07-04 15:23:19,317 - Iter 640001/800000 Loss: 0.2459 Time: 0.004
+INFO - run_lib_toy.py - 2023-07-04 15:23:35,317 - Iter 645001/800000 Loss: 0.3167 Time: 0.003
+INFO - run_lib_toy.py - 2023-07-04 15:23:51,288 - Saving snapshot checkpoint.
+INFO - ema.py - 2023-07-04 15:23:51,292 - Storing current parameters for restoring later.
+INFO - ema.py - 2023-07-04 15:23:51,292 - Copying EMA parameters to model.
+INFO - ema.py - 2023-07-04 15:23:51,389 - Restoring model parameters.
+INFO - run_lib_toy.py - 2023-07-04 15:23:51,389 - NFE snapshot at step 650000: 141
+INFO - run_lib_toy.py - 2023-07-04 15:23:51,482 - Iter 650001/800000 Loss: 0.2808 Time: 0.004
+INFO - run_lib_toy.py - 2023-07-04 15:24:07,396 - Iter 655001/800000 Loss: 0.2932 Time: 0.003
+INFO - run_lib_toy.py - 2023-07-04 15:24:23,424 - Saving snapshot checkpoint.
+INFO - ema.py - 2023-07-04 15:24:23,427 - Storing current parameters for restoring later.
+INFO - ema.py - 2023-07-04 15:24:23,428 - Copying EMA parameters to model.
+INFO - ema.py - 2023-07-04 15:24:23,523 - Restoring model parameters.
+INFO - run_lib_toy.py - 2023-07-04 15:24:23,524 - NFE snapshot at step 660000: 141
+INFO - run_lib_toy.py - 2023-07-04 15:24:23,610 - Iter 660001/800000 Loss: 0.3001 Time: 0.004
+INFO - run_lib_toy.py - 2023-07-04 15:24:39,613 - Iter 665001/800000 Loss: 0.2995 Time: 0.003
+INFO - run_lib_toy.py - 2023-07-04 15:24:55,644 - Saving snapshot checkpoint.
+INFO - ema.py - 2023-07-04 15:24:55,650 - Storing current parameters for restoring later.
+INFO - ema.py - 2023-07-04 15:24:55,650 - Copying EMA parameters to model.
+INFO - ema.py - 2023-07-04 15:24:55,752 - Restoring model parameters.
+INFO - run_lib_toy.py - 2023-07-04 15:24:55,752 - NFE snapshot at step 670000: 147
+INFO - run_lib_toy.py - 2023-07-04 15:24:55,839 - Iter 670001/800000 Loss: 0.2974 Time: 0.004
+INFO - run_lib_toy.py - 2023-07-04 15:25:11,828 - Iter 675001/800000 Loss: 0.3028 Time: 0.003
+INFO - run_lib_toy.py - 2023-07-04 15:25:27,422 - Saving snapshot checkpoint.
+INFO - ema.py - 2023-07-04 15:25:27,425 - Storing current parameters for restoring later.
+INFO - ema.py - 2023-07-04 15:25:27,425 - Copying EMA parameters to model.
+INFO - ema.py - 2023-07-04 15:25:27,525 - Restoring model parameters.
+INFO - run_lib_toy.py - 2023-07-04 15:25:27,525 - NFE snapshot at step 680000: 147
+INFO - run_lib_toy.py - 2023-07-04 15:25:27,614 - Iter 680001/800000 Loss: 0.2965 Time: 0.004
+INFO - run_lib_toy.py - 2023-07-04 15:25:43,250 - Iter 685001/800000 Loss: 0.3208 Time: 0.003
+INFO - run_lib_toy.py - 2023-07-04 15:25:58,797 - Saving snapshot checkpoint.
+INFO - ema.py - 2023-07-04 15:25:58,800 - Storing current parameters for restoring later.
+INFO - ema.py - 2023-07-04 15:25:58,801 - Copying EMA parameters to model.
+INFO - ema.py - 2023-07-04 15:25:58,901 - Restoring model parameters.
+INFO - run_lib_toy.py - 2023-07-04 15:25:58,901 - NFE snapshot at step 690000: 147
+INFO - run_lib_toy.py - 2023-07-04 15:25:58,989 - Iter 690001/800000 Loss: 0.2910 Time: 0.004
+INFO - run_lib_toy.py - 2023-07-04 15:26:14,492 - Iter 695001/800000 Loss: 0.2630 Time: 0.003
+INFO - run_lib_toy.py - 2023-07-04 15:26:30,426 - Saving snapshot checkpoint.
+INFO - ema.py - 2023-07-04 15:26:30,429 - Storing current parameters for restoring later.
+INFO - ema.py - 2023-07-04 15:26:30,429 - Copying EMA parameters to model.
+INFO - ema.py - 2023-07-04 15:26:30,529 - Restoring model parameters.
+INFO - run_lib_toy.py - 2023-07-04 15:26:30,529 - NFE snapshot at step 700000: 147
+INFO - run_lib_toy.py - 2023-07-04 15:26:30,621 - Iter 700001/800000 Loss: 0.3028 Time: 0.004
+INFO - run_lib_toy.py - 2023-07-04 15:26:46,434 - Iter 705001/800000 Loss: 0.2929 Time: 0.003
+INFO - run_lib_toy.py - 2023-07-04 15:27:02,399 - Saving snapshot checkpoint.
+INFO - ema.py - 2023-07-04 15:27:02,403 - Storing current parameters for restoring later.
+INFO - ema.py - 2023-07-04 15:27:02,403 - Copying EMA parameters to model.
+INFO - ema.py - 2023-07-04 15:27:02,503 - Restoring model parameters.
+INFO - run_lib_toy.py - 2023-07-04 15:27:02,503 - NFE snapshot at step 710000: 147
+INFO - run_lib_toy.py - 2023-07-04 15:27:02,589 - Iter 710001/800000 Loss: 0.2471 Time: 0.004
+INFO - run_lib_toy.py - 2023-07-04 15:27:18,258 - Iter 715001/800000 Loss: 0.3275 Time: 0.003
+INFO - run_lib_toy.py - 2023-07-04 15:27:34,272 - Saving snapshot checkpoint.
+INFO - ema.py - 2023-07-04 15:27:34,278 - Storing current parameters for restoring later.
+INFO - ema.py - 2023-07-04 15:27:34,279 - Copying EMA parameters to model.
+INFO - ema.py - 2023-07-04 15:27:34,378 - Restoring model parameters.
+INFO - run_lib_toy.py - 2023-07-04 15:27:34,378 - NFE snapshot at step 720000: 147
+INFO - run_lib_toy.py - 2023-07-04 15:27:34,464 - Iter 720001/800000 Loss: 0.2622 Time: 0.004
+INFO - run_lib_toy.py - 2023-07-04 15:27:50,620 - Iter 725001/800000 Loss: 0.3103 Time: 0.003
+INFO - run_lib_toy.py - 2023-07-04 15:28:06,710 - Saving snapshot checkpoint.
+INFO - ema.py - 2023-07-04 15:28:06,713 - Storing current parameters for restoring later.
+INFO - ema.py - 2023-07-04 15:28:06,713 - Copying EMA parameters to model.
+INFO - ema.py - 2023-07-04 15:28:06,806 - Restoring model parameters.
+INFO - run_lib_toy.py - 2023-07-04 15:28:06,807 - NFE snapshot at step 730000: 135
+INFO - run_lib_toy.py - 2023-07-04 15:28:06,896 - Iter 730001/800000 Loss: 0.3103 Time: 0.004
+INFO - run_lib_toy.py - 2023-07-04 15:28:22,873 - Iter 735001/800000 Loss: 0.2811 Time: 0.003
+INFO - run_lib_toy.py - 2023-07-04 15:28:38,932 - Saving snapshot checkpoint.
+INFO - ema.py - 2023-07-04 15:28:38,936 - Storing current parameters for restoring later.
+INFO - ema.py - 2023-07-04 15:28:38,936 - Copying EMA parameters to model.
+INFO - ema.py - 2023-07-04 15:28:39,039 - Restoring model parameters.
+INFO - run_lib_toy.py - 2023-07-04 15:28:39,039 - NFE snapshot at step 740000: 153
+INFO - run_lib_toy.py - 2023-07-04 15:28:39,126 - Iter 740001/800000 Loss: 0.2770 Time: 0.004
+INFO - run_lib_toy.py - 2023-07-04 15:28:55,400 - Iter 745001/800000 Loss: 0.3176 Time: 0.003
+INFO - run_lib_toy.py - 2023-07-04 15:29:11,735 - Saving snapshot checkpoint.
+INFO - ema.py - 2023-07-04 15:29:11,738 - Storing current parameters for restoring later.
+INFO - ema.py - 2023-07-04 15:29:11,738 - Copying EMA parameters to model.
+INFO - ema.py - 2023-07-04 15:29:11,843 - Restoring model parameters.
+INFO - run_lib_toy.py - 2023-07-04 15:29:11,844 - NFE snapshot at step 750000: 153
+INFO - run_lib_toy.py - 2023-07-04 15:29:11,939 - Iter 750001/800000 Loss: 0.3160 Time: 0.004
+INFO - run_lib_toy.py - 2023-07-04 15:29:28,177 - Iter 755001/800000 Loss: 0.3067 Time: 0.003
+INFO - run_lib_toy.py - 2023-07-04 15:29:44,692 - Saving snapshot checkpoint.
+INFO - ema.py - 2023-07-04 15:29:44,695 - Storing current parameters for restoring later.
+INFO - ema.py - 2023-07-04 15:29:44,696 - Copying EMA parameters to model.
+INFO - ema.py - 2023-07-04 15:29:44,800 - Restoring model parameters.
+INFO - run_lib_toy.py - 2023-07-04 15:29:44,801 - NFE snapshot at step 760000: 153
+INFO - run_lib_toy.py - 2023-07-04 15:29:44,889 - Iter 760001/800000 Loss: 0.2648 Time: 0.004
+INFO - run_lib_toy.py - 2023-07-04 15:30:01,120 - Iter 765001/800000 Loss: 0.2831 Time: 0.003
+INFO - run_lib_toy.py - 2023-07-04 15:30:17,353 - Saving snapshot checkpoint.
+INFO - ema.py - 2023-07-04 15:30:17,356 - Storing current parameters for restoring later.
+INFO - ema.py - 2023-07-04 15:30:17,357 - Copying EMA parameters to model.
+INFO - ema.py - 2023-07-04 15:30:17,461 - Restoring model parameters.
+INFO - run_lib_toy.py - 2023-07-04 15:30:17,461 - NFE snapshot at step 770000: 153
+INFO - run_lib_toy.py - 2023-07-04 15:30:17,552 - Iter 770001/800000 Loss: 0.3166 Time: 0.004
+INFO - run_lib_toy.py - 2023-07-04 15:30:33,670 - Iter 775001/800000 Loss: 0.2461 Time: 0.003
+INFO - run_lib_toy.py - 2023-07-04 15:30:49,975 - Saving snapshot checkpoint.
+INFO - ema.py - 2023-07-04 15:30:49,979 - Storing current parameters for restoring later.
+INFO - ema.py - 2023-07-04 15:30:49,979 - Copying EMA parameters to model.
+INFO - ema.py - 2023-07-04 15:30:50,085 - Restoring model parameters.
+INFO - run_lib_toy.py - 2023-07-04 15:30:50,086 - NFE snapshot at step 780000: 153
+INFO - run_lib_toy.py - 2023-07-04 15:30:50,174 - Iter 780001/800000 Loss: 0.2637 Time: 0.004
+INFO - run_lib_toy.py - 2023-07-04 15:31:06,270 - Iter 785001/800000 Loss: 0.3263 Time: 0.003
+INFO - run_lib_toy.py - 2023-07-04 15:31:22,399 - Saving snapshot checkpoint.
+INFO - ema.py - 2023-07-04 15:31:22,402 - Storing current parameters for restoring later.
+INFO - ema.py - 2023-07-04 15:31:22,402 - Copying EMA parameters to model.
+INFO - ema.py - 2023-07-04 15:31:22,507 - Restoring model parameters.
+INFO - run_lib_toy.py - 2023-07-04 15:31:22,507 - NFE snapshot at step 790000: 153
+INFO - run_lib_toy.py - 2023-07-04 15:31:22,596 - Iter 790001/800000 Loss: 0.3002 Time: 0.004
+INFO - run_lib_toy.py - 2023-07-04 15:31:38,435 - Iter 795001/800000 Loss: 0.3101 Time: 0.003
+INFO - run_lib_toy.py - 2023-07-04 15:31:54,286 - Finished after 800000 iterations.
+INFO - run_lib_toy.py - 2023-07-04 15:31:54,286 - Saving final checkpoint.
