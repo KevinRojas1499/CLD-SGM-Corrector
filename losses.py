@@ -52,17 +52,15 @@ def get_loss_fn(sde, train, config):
 
         if config.cld_objective == 'realdsm':
             # loss = augmented_score_matching(sde, score, perturbed_data, t)
-            matrix_noise = (sde.matrix_noise_multiplier(t)).type(torch.float32)
-                
-            # matrix_noise = sde.matrix_noise_multiplier(t)
+            matrix_noise = sde.matrix_noise_multiplier(t)
             for v in matrix_noise:
                 v = v.type(torch.float32)
 
-            batch_noise_x, batch_noise_v = torch.chunk(batch_randn, 2, dim=1)
-            noise_x = matrix_noise[0] * batch_noise_x + matrix_noise[1] * batch_noise_v
-            noise_y = matrix_noise[2] * batch_noise_v
+            score_x, score_y = torch.chunk(score, 2, dim=1)
+            noise_y = score_y/matrix_noise[2]
+            noise_x = (score_x - matrix_noise[1] * noise_y) / matrix_noise[0]
             noise = torch.cat((noise_x, noise_y), dim = 1)
-            loss = (score + noise)**2 * multiplier
+            loss = (noise - batch_randn)**2 * multiplier
         elif config.weighting == 'reweightedv1':
             loss = (score / noise_multiplier - batch_randn)**2 * multiplier
         elif config.weighting == 'likelihood':

@@ -151,15 +151,11 @@ class CLD(nn.Module):
     
     def matrix_noise_multiplier(self, t ,var0x=None, var0v=None):
         '''
-        Evaluating the -\ell_t multiplier. Similar to -1/standard deviaton in VPSDE.
+        Evaluating the -L_t^{-T} multiplier. Similar to -1/standard deviaton in VPSDE.
         '''
         var = self.var(t, var0x, var0v)
         coeff = 1 / torch.sqrt(var[0] * var[2] - var[1]**2)
-
-        # cholesky11 = torch.sqrt(var[0])
-        # cholesky12 = -var[1]/cholesky11 
-        # cholesky22 = coeff / cholesky11
-
+        
         cholesky11 = 1/torch.sqrt(var[0])
         cholesky12 = -var[1] * cholesky11 * coeff 
         cholesky22 = coeff / cholesky11
@@ -167,7 +163,7 @@ class CLD(nn.Module):
         if torch.sum(torch.isnan(coeff)) > 0:
             raise ValueError('Numerical precision error.')
 
-        return [cholesky11, cholesky12, cholesky22]
+        return [-cholesky11, -cholesky12, -cholesky22]
 
     def loss_multiplier(self, t):
         '''
