@@ -60,6 +60,10 @@ class CLD(nn.Module):
             drift_x, drift_v = torch.chunk(drift, 2, dim=1)
             _, diffusion_v = torch.chunk(diffusion, 2, dim=1)
 
+            if score.shape[-1] != drift_x.shape[-1]:
+                _, scorev = torch.chunk(score, 2, dim = 1)
+                score = scorev
+
             reverse_drift_x = -drift_x
             reverse_drift_v = -drift_v + diffusion_v ** 2. * \
                 score * (0.5 if probability_flow else 1.)
@@ -107,7 +111,7 @@ class CLD(nn.Module):
             var0x = add_dimensions(torch.zeros_like(
                 t, dtype=torch.float64, device=t.device), self.config.is_image)
         if var0v is None:
-            if self.config.cld_objective == 'dsm':
+            if self.config.cld_objective == 'dsm' or self.config.cld_objective == 'realdsm':
                 var0v = torch.zeros_like(
                     t, dtype=torch.float64, device=t.device)
             elif self.config.cld_objective == 'hsm':
@@ -144,6 +148,26 @@ class CLD(nn.Module):
             raise ValueError('Numerical precision error.')
 
         return -coeff
+    
+    def matrix_noise_multiplier(self, t ,var0x=None, var0v=None):
+        '''
+        Evaluating the -\ell_t multiplier. Similar to -1/standard deviaton in VPSDE.
+        '''
+        var = self.var(t, var0x, var0v)
+        coeff = 1 / torch.sqrt(var[0] * var[2] - var[1]**2)
+
+        # cholesky11 = torch.sqrt(var[0])
+        # cholesky12 = -var[1]/cholesky11 
+        # cholesky22 = coeff / cholesky11
+
+        cholesky11 = 1/torch.sqrt(var[0])
+        cholesky12 = -var[1] * cholesky11 * coeff 
+        cholesky22 = coeff / cholesky11
+
+        if torch.sum(torch.isnan(coeff)) > 0:
+            raise ValueError('Numerical precision error.')
+
+        return [cholesky11, cholesky12, cholesky22]
 
     def loss_multiplier(self, t):
         '''

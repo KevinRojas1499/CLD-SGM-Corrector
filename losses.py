@@ -16,7 +16,7 @@ def get_loss_fn(sde, train, config):
     def loss_fn(model, x):
         # Setting up initial means
         if sde.is_augmented:
-            if config.cld_objective == 'dsm':
+            if config.cld_objective == 'dsm' or config.cld_objective == 'realdsm':
                 v = torch.randn_like(x, device=x.device) * \
                     np.sqrt(sde.gamma / sde.m_inv)
                 batch = torch.cat((x, v), dim=1)
@@ -37,19 +37,35 @@ def get_loss_fn(sde, train, config):
         mean = mean.type(torch.float32)
 
         # In the augmented case, we only need "velocity noise" for the loss
-        if sde.is_augmented:
+        if sde.is_augmented and config.cld_objective != 'realdsm':
             _, batch_randn_v = torch.chunk(batch_randn, 2, dim=1)
             batch_randn = batch_randn_v
 
         score_fn = mutils.get_score_fn(config, sde, model, train)
         score = score_fn(perturbed_data, t)
 
+
         multiplier = sde.loss_multiplier(t).type(torch.float32)
         multiplier = add_dimensions(multiplier, config.is_image)
 
         noise_multiplier = sde.noise_multiplier(t).type(torch.float32)
 
-        if config.weighting == 'reweightedv1':
+        if config.cld_objective == 'realdsm':
+            # loss = augmented_score_matching(sde, score, perturbed_data, t)
+            _, z = torch.chunk(perturbed_data, 2, dim=1)
+            ones = torch.ones_like(z, device=config.device)
+            matrix_noise = (sde.matrix_noise_multiplier(t, 0. * ones, (sde.gamma / sde.m_inv) * ones)[2]).type(torch.float32)
+                
+            # matrix_noise = sde.matrix_noise_multiplier(t)
+            for v in matrix_noise:
+                v = v.type(torch.float32)
+
+            batch_noise_x, batch_noise_v = torch.chunk(batch_randn, 2, dim=1)
+            noise_x = matrix_noise[0] * batch_noise_x + matrix_noise[1] * batch_noise_v
+            noise_y = matrix_noise[2] * batch_noise_v
+            noise = torch.cat((noise_x, noise_y), dim = 1)
+            loss = (score + noise)**2 * multiplier
+        elif config.weighting == 'reweightedv1':
             loss = (score / noise_multiplier - batch_randn)**2 * multiplier
         elif config.weighting == 'likelihood':
             # Following loss corresponds to Maximum Likelihood learning

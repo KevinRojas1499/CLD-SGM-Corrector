@@ -160,7 +160,7 @@ if __name__ == '__main__':
     p.add('--grad_clip', type=float)
 
     # Objective
-    p.add('--cld_objective', choices=['dsm', 'hsm'], default='hsm')
+    p.add('--cld_objective', choices=['dsm', 'hsm','realdsm'], default='hsm')
     p.add('--loss_eps', type=float)
     p.add('--weighting', choices=['likelihood',
           'reweightedv1', 'reweightedv2'])

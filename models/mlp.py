@@ -27,10 +27,11 @@ class MLP(nn.Module):
 
         if self.x_input and self.v_input:
             in_dim = input_dim * 2 + index_dim
+            out_dim = input_dim * 2
         else:
             in_dim = input_dim + index_dim
-        out_dim = input_dim
-
+            out_dim = input_dim
+        print(f"The MLP model has been initialized with {in_dim}, {out_dim}")
         self.main = nn.Sequential(nn.Linear(in_dim, hidden_dim),
                                   act,
                                   nn.Linear(hidden_dim, hidden_dim),

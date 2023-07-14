@@ -60,11 +60,27 @@ def get_score_fn(config, sde, model, train=False):
         noise_multiplier = sde.noise_multiplier(t).type(torch.float32)
 
         if config.mixed_score:
-            if sde.is_augmented:
+            if sde.is_augmented and config.cld_objective != 'realdsm':
                 _, z = torch.chunk(u, 2, dim=1)
                 ones = torch.ones_like(z, device=config.device)
                 var_zz = (sde.var(t, 0. * ones, (sde.gamma / sde.m_inv) * ones)[2]).type(torch.float32)
                 return - z / var_zz + score * noise_multiplier
+            elif config.cld_objective == 'realdsm':
+                # _, z = torch.chunk(u, 2, dim=1)
+                # ones = torch.ones_like(z, device=config.device)
+                # var_zz = (sde.var(t, 0. * ones, (sde.gamma / sde.m_inv) * ones)).type(torch.float32)
+
+                # mult = 1. / torch.sqrt(var_zz[0] * var_zz[2] - var_zz[1]**2)
+                # cholesky11 = 1/torch.sqrt(var_zz[0])
+                # cholesky12 = -var_zz[1]*cholesky11 * mult
+                # cholesky22 = mult / cholesky11
+
+                # x , v = torch.chunk(score, 2 , dim=1)
+
+                # xp = cholesky11 * x + cholesky12 * v
+                # vp = cholesky22 * v 
+                # return -torch.cat((xp,vp), dim = 1)
+                return score
             else:
                 ones = torch.ones_like(u, device=config.device)
                 var = (sde.var(t, ones)[0]).type(torch.float32)

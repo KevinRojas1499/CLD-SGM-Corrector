@@ -138,6 +138,11 @@ def get_corrector_sampler(config, sde, sampling_shape, eps):
             u = fast_discrete_step_fn(u,t[i],dt)
         return u
     
+    def overdamped_langevin_iter(u, h, potential):
+        print("iter")
+        return u + potential*h + (2*h_lang)**.5 * torch.randn_like(u)
+    
+    
     def overdamped_langevin_corrector(model, u, t):
         def _concat(u,x,v):
             return torch.cat((x,u), dim=1) if config.correct_speed else torch.cat((u,v), dim = 1) 
@@ -147,11 +152,18 @@ def get_corrector_sampler(config, sde, sampling_shape, eps):
         
         score_fn = get_score_fn(config, sde, model, train=False)
         for i in range(n_lang_iters):
-            x,v = torch.chunk(u, 2, dim=1)
-            z = v if config.correct_speed else x 
-            z = z + score_fn(u, tt) * h_lang + (2*h_lang)**.5 * torch.randn_like(z)
+            score = score_fn(u,tt)
+            print(u.shape, score.shape)
+            if config.correct_speed:
+                x,v = torch.chunk(u, 2, dim=1)
+                z = v  
+                z = overdamped_langevin_iter(z,h_lang,score)
+                # z = z + score_fn(u, tt) * h_lang + (2*h_lang)**.5 * torch.randn_like(z)
 
-            u = _concat(z,x,v) 
+                u = _concat(z,x,v) 
+            else:
+                u = overdamped_langevin_iter(u,tt,score)
+
         return u
 
     def underdamped_langevin_corrector(model, uu, t):
