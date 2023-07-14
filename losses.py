@@ -52,9 +52,7 @@ def get_loss_fn(sde, train, config):
 
         if config.cld_objective == 'realdsm':
             # loss = augmented_score_matching(sde, score, perturbed_data, t)
-            _, z = torch.chunk(perturbed_data, 2, dim=1)
-            ones = torch.ones_like(z, device=config.device)
-            matrix_noise = (sde.matrix_noise_multiplier(t, 0. * ones, (sde.gamma / sde.m_inv) * ones)[2]).type(torch.float32)
+            matrix_noise = (sde.matrix_noise_multiplier(t)).type(torch.float32)
                 
             # matrix_noise = sde.matrix_noise_multiplier(t)
             for v in matrix_noise:
