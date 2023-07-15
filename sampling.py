@@ -102,7 +102,7 @@ def get_corrector_sampler(config, sde, sampling_shape, eps):
     gamma               = 0.04
 
     n_lang_iters = config.n_lang_iters
-    h_lang = .01
+    h_lang = .1
 
 
     def step_fn(model, u, t, dt):
@@ -131,7 +131,7 @@ def get_corrector_sampler(config, sde, sampling_shape, eps):
         # eta = 4 * gamma * beta / c_hat**2 
         eta = 0.001683
         n_discrete_steps = (int) (dt/eta)
-        print(eta,dt)
+        # print(eta,dt)
         t = torch.linspace(t + dt, t, n_discrete_steps + 1, dtype=torch.float64)
         for i in range(n_discrete_steps):
             dt = torch.abs(t[i+1]- t[i])
@@ -139,30 +139,23 @@ def get_corrector_sampler(config, sde, sampling_shape, eps):
         return u
     
     def overdamped_langevin_iter(u, h, potential):
-        print("iter")
-        return u + potential*h + (2*h_lang)**.5 * torch.randn_like(u)
+        return u + potential*h + (2*h)**.5 * torch.randn_like(u)
     
     
     def overdamped_langevin_corrector(model, u, t):
-        def _concat(u,x,v):
-            return torch.cat((x,u), dim=1) if config.correct_speed else torch.cat((u,v), dim = 1) 
-
         tt = torch.ones(
             u.shape[0], device=u.device, dtype=torch.float64) * t
         
         score_fn = get_score_fn(config, sde, model, train=False)
         for i in range(n_lang_iters):
             score = score_fn(u,tt)
-            print(u.shape, score.shape)
             if config.correct_speed:
                 x,v = torch.chunk(u, 2, dim=1)
-                z = v  
-                z = overdamped_langevin_iter(z,h_lang,score)
-                # z = z + score_fn(u, tt) * h_lang + (2*h_lang)**.5 * torch.randn_like(z)
-
-                u = _concat(z,x,v) 
+                # sx,sv = torch.chunk(score, 2, dim=1)
+                v = overdamped_langevin_iter(v,h_lang,score)
+                u = torch.cat((x,v), dim=1)
             else:
-                u = overdamped_langevin_iter(u,tt,score)
+                u = overdamped_langevin_iter(u,h_lang,score)
 
         return u
 
@@ -268,7 +261,7 @@ def get_em_sampler(config, sde, sampling_shape, eps):
                 return u, None, config.n_discrete_steps
 
     return em_sampler
-
+s
 
 def get_sscs_sampler(config, sde, sampling_shape, eps):
     ''' 
