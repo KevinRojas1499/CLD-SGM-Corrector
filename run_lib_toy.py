@@ -287,8 +287,9 @@ def evaluate(config, workdir):
         file_name= f"{config.sampling_method}_{config.n_discrete_steps}_lang_{config.n_lang_iters}.png"
         logging.info('NFE: %d' % nfe)
 
-        plt.xlim(-1,1)
-        plt.ylim(-1,1)
+        l = 1.5
+        plt.xlim(-l,l)
+        plt.ylim(-l,l)
         plt.scatter(x.cpu().numpy()[:, 0], x.cpu().numpy()[:, 1], s=3)
         plt.savefig(os.path.join(sample_dir, file_name))
         plt.close()

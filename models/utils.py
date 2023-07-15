@@ -59,8 +59,16 @@ def get_score_fn(config, sde, model, train=False):
         score = model_fn(u.type(torch.float32), t.type(torch.float32))
         noise_multiplier = sde.noise_multiplier(t).type(torch.float32)
 
-        if config.mixed_score:
-            if sde.is_augmented and config.cld_objective != 'realdsm':
+
+        if config.cld_objective == 'realdsm':
+            print("NOT HERE")
+            noise_multiplier = sde.matrix_noise_multiplier(t)
+            noise_x, noise_y = torch.chunk(score, 2, dim = 1)
+            score_x = noise_multiplier[0] * noise_x + noise_multiplier[1] * noise_y
+            score_y = noise_multiplier[2] * noise_y
+            return torch.cat((score_x, score_y), dim = 1)
+        elif config.mixed_score:
+            if sde.is_augmented:
                 _, z = torch.chunk(u, 2, dim=1)
                 ones = torch.ones_like(z, device=config.device)
                 var_zz = (sde.var(t, 0. * ones, (sde.gamma / sde.m_inv) * ones)[2]).type(torch.float32)
@@ -69,13 +77,6 @@ def get_score_fn(config, sde, model, train=False):
                 ones = torch.ones_like(u, device=config.device)
                 var = (sde.var(t, ones)[0]).type(torch.float32)
                 return -u / var + score * noise_multiplier
-        elif config.cld_objective == 'realdsm':
-            noise_multiplier = sde.matrix_noise_multiplier(t)
-            noise_x, noise_y = torch.chunk(score, 2, dim = 1)
-            score_x = noise_multiplier[0] * noise_x + noise_multiplier[1] * noise_y
-            score_y = noise_multiplier[2] * noise_y
-            
-            return torch.cat((score_x, score_y), dim = 1)
         else:
             return noise_multiplier * score
     return score_fn

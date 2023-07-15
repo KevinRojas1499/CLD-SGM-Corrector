@@ -108,8 +108,9 @@ def get_corrector_sampler(config, sde, sampling_shape, eps):
         nonlocal counter
         file_name= f"{counter}.png"
         counter+=1
-        # plt.xlim(-1,1)
-        # plt.ylim(-1,1)
+        l = 1.5
+        plt.xlim(-l,l)
+        plt.ylim(-l,l)
         x, _ = torch.chunk( u , 2, dim = 1)
         plt.scatter(x.cpu().numpy()[:, 0], x.cpu().numpy()[:, 1], color=color, s=3)
         plt.savefig(os.path.join("./root/trajectory/", file_name))
@@ -162,6 +163,8 @@ def get_corrector_sampler(config, sde, sampling_shape, eps):
             score = score_fn(u,tt)
             x,v = torch.chunk(u, 2, dim=1)
             sx,sv = torch.chunk(score, 2, dim=1)
+            if score.shape[-1] == v.shape[-1]:
+                sv = score
             if config.correct_speed:
                 v = overdamped_langevin_iter(v,h_lang,sv)
             else:
@@ -203,7 +206,7 @@ def get_corrector_sampler(config, sde, sampling_shape, eps):
             n_discrete_steps = config.n_discrete_steps if not config.denoising else config.n_discrete_steps - 1
             t_final = 1. - eps
             t = torch.linspace(
-                t_final, 0. , n_discrete_steps + 1, dtype=torch.float64)
+                0., t_final, n_discrete_steps + 1, dtype=torch.float64)
             if config.striding == 'linear':
                 pass
             elif config.striding == 'quadratic':
@@ -212,11 +215,11 @@ def get_corrector_sampler(config, sde, sampling_shape, eps):
             for i in range(n_discrete_steps):
                 dt = torch.abs(t[i + 1] - t[i])
                 # u = discrete_steps(u, t[i], dt)
-                u, _ = step_fn(model, u, t_final - t[i], dt)
-                if config.overdamped_lang:
-                    u = overdamped_langevin_corrector(model, u, t[i+1])
-                else:
-                    u = underdamped_langevin_corrector(model, u, t[i+1])
+                u, _ = step_fn(model, u, t[i], dt)
+                # if config.overdamped_lang:
+                #     u = overdamped_langevin_corrector(model, u, t[i+1])
+                # else:
+                #     u = underdamped_langevin_corrector(model, u, t[i+1])
 
                 make_image(u,color='blue')
 

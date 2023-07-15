@@ -20,10 +20,11 @@ save_threshold       = 300000
 sampling_method      = ode
 sampling_eps         = 1e-3
 denoising            = true
-n_discrete_steps     = 100
-ckpt_file            = snapshot_checkpoint.pth
-n_lang_iters         = 5
+n_discrete_steps     = 300
+ckpt_file            = final_checkpoint.pth
+n_lang_iters         = 1
 overdamped_lang
+correct_speed
 
 # Model
 name                = mlp
@@ -46,6 +47,6 @@ dropout             = 0.1
 weight_decay        = 0.0
 
 # Objective
-cld_objective       = realdsm
+cld_objective       = hsm
 loss_eps            = 1e-5
 weighting           = reweightedv2
