@@ -73,7 +73,7 @@ def get_score_fn(config, sde, model, train=False):
             noise_multiplier = sde.matrix_noise_multiplier(t)
             noise_x, noise_y = torch.chunk(score, 2, dim = 1)
             score_x = noise_multiplier[0] * noise_x + noise_multiplier[1] * noise_y
-            score_y = noise_multiplier[1] * noise_y
+            score_y = noise_multiplier[2] * noise_y
             
             return torch.cat((score_x, score_y), dim = 1)
         else:
