@@ -261,7 +261,7 @@ def get_em_sampler(config, sde, sampling_shape, eps):
                 return u, None, config.n_discrete_steps
 
     return em_sampler
-s
+
 
 def get_sscs_sampler(config, sde, sampling_shape, eps):
     ''' 
