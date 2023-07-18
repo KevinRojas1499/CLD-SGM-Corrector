@@ -1,4 +1,4 @@
-WORK_DIR="realdsm"
+WORK_DIR="swiss_roll"
 ROOT="./root"
 SAMPLES="eval_fid"
 # rm -rf ${ROOT}/${WORK_DIR}_seed_0

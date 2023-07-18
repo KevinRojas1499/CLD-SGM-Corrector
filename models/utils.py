@@ -59,9 +59,7 @@ def get_score_fn(config, sde, model, train=False):
         score = model_fn(u.type(torch.float32), t.type(torch.float32))
         noise_multiplier = sde.noise_multiplier(t).type(torch.float32)
 
-
         if config.cld_objective == 'realdsm':
-            print("NOT HERE")
             noise_multiplier = sde.matrix_noise_multiplier(t)
             noise_x, noise_y = torch.chunk(score, 2, dim = 1)
             score_x = noise_multiplier[0] * noise_x + noise_multiplier[1] * noise_y

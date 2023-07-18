@@ -19,10 +19,10 @@ save_threshold       = 300000
 # Sampling
 sampling_method      = ode
 sampling_eps         = 1e-3
-denoising            = true
-n_discrete_steps     = 300
+denoising            = false
+n_discrete_steps     = 75
 ckpt_file            = final_checkpoint.pth
-n_lang_iters         = 1
+n_lang_iters         = 11111
 overdamped_lang
 correct_speed
 

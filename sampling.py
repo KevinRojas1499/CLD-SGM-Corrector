@@ -99,7 +99,7 @@ def get_corrector_sampler(config, sde, sampling_shape, eps):
     m_inv = sde.m_inv
 
     n_lang_iters = config.n_lang_iters
-    h_lang = .1
+    h_lang = .15
     counter = 0
 
     def make_image(u, color='blue'):
@@ -109,8 +109,8 @@ def get_corrector_sampler(config, sde, sampling_shape, eps):
         file_name= f"{counter}.png"
         counter+=1
         l = 1.5
-        plt.xlim(-l,l)
-        plt.ylim(-l,l)
+        # plt.xlim(-l,l)
+        # plt.ylim(-l,l)
         x, _ = torch.chunk( u , 2, dim = 1)
         plt.scatter(x.cpu().numpy()[:, 0], x.cpu().numpy()[:, 1], color=color, s=3)
         plt.savefig(os.path.join("./root/trajectory/", file_name))
@@ -143,7 +143,7 @@ def get_corrector_sampler(config, sde, sampling_shape, eps):
         eta = 4 * gamma * beta / c_hat**2 
         # eta = 0.001683
         n_discrete_steps = (int) (dt/eta)
-        # print(eta,dt)
+        print(eta,dt)
         t = torch.linspace(t + dt, t, n_discrete_steps + 1, dtype=torch.float64)
         for i in range(n_discrete_steps):
             dt = torch.abs(t[i+1]- t[i])
@@ -171,7 +171,7 @@ def get_corrector_sampler(config, sde, sampling_shape, eps):
                 x = overdamped_langevin_iter(x,h_lang,sx)
             u = torch.cat((x,v), dim=1)
 
-            make_image(u,color='red')
+            # make_image(u,color='red')
         return u
 
     def underdamped_langevin_corrector(model, uu, t):
@@ -206,7 +206,7 @@ def get_corrector_sampler(config, sde, sampling_shape, eps):
             n_discrete_steps = config.n_discrete_steps if not config.denoising else config.n_discrete_steps - 1
             t_final = 1. - eps
             t = torch.linspace(
-                0., t_final, n_discrete_steps + 1, dtype=torch.float64)
+                t_final, 0.,  n_discrete_steps + 1, dtype=torch.float64)
             if config.striding == 'linear':
                 pass
             elif config.striding == 'quadratic':
@@ -214,14 +214,15 @@ def get_corrector_sampler(config, sde, sampling_shape, eps):
 
             for i in range(n_discrete_steps):
                 dt = torch.abs(t[i + 1] - t[i])
-                # u = discrete_steps(u, t[i], dt)
-                u, _ = step_fn(model, u, t[i], dt)
-                # if config.overdamped_lang:
-                #     u = overdamped_langevin_corrector(model, u, t[i+1])
-                # else:
-                #     u = underdamped_langevin_corrector(model, u, t[i+1])
-
+                u = discrete_steps(u, t[i], dt)
+                # u, _ = step_fn(model, u, t_final - t[i], dt)
                 make_image(u,color='blue')
+
+                if config.overdamped_lang:
+                    u = overdamped_langevin_corrector(model, u, t[i+1])
+                else:
+                    u = underdamped_langevin_corrector(model, u, t[i+1])
+
 
             if config.denoising:
                 _, u = step_fn(model, u, 1. - eps, eps)
