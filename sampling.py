@@ -88,7 +88,108 @@ def get_ode_sampler(config, sde, sampling_shape, eps):
 
     return ode_sampler
 
+def get_corrector_sampler(config, sde, sampling_shape, eps):
 
+    gc.collect()
+
+    c_hat = 19.5
+    gamma = sde.gamma
+    m_inv = sde.m_inv
+
+    n_lang_iters = config.n_lang_iters
+    h_lang = .15
+    counter = 0
+
+    def make_image(u, color='blue'):
+        import matplotlib.pyplot as plt
+        import os
+        nonlocal counter
+        file_name= f"{counter}.png"
+        counter+=1
+        l = 1.5
+        # plt.xlim(-l,l)
+        # plt.ylim(-l,l)
+        x, _ = torch.chunk( u , 2, dim = 1)
+        plt.scatter(x.cpu().numpy()[:, 0], x.cpu().numpy()[:, 1], color=color, s=3)
+        plt.savefig(os.path.join("./root/trajectory/", file_name))
+        plt.close()
+
+
+    def step_fn(model, u, t, dt):
+        score_fn = get_score_fn(config, sde, model, train=False)
+        discrete_step_fn = sde.get_discrete_step_fn(
+            mode='reverse', score_fn=score_fn)
+        u, u_mean = discrete_step_fn(u, t, dt)
+        return u, u_mean
+
+    def gradV(x):
+        epss = 1e-5
+        f1 = lambda x : torch.sin(x)
+        return x + c_hat *  f1(x/epss)
+        
+    def fast_discrete_step_fn(u,t,eta):
+        beta = sde.beta_fn(t)
+
+        x,v = torch.chunk(u, 2, dim=1)
+        v = (v + beta * gradV(x) * eta)/(1-gamma * m_inv * beta * eta)
+        x = x - m_inv * beta * v * eta
+        return torch.cat((x,v), dim=1)
+
+
+    def discrete_steps(u, t , dt):
+        beta = sde.beta_fn(t)
+        eta = 4 * gamma * beta / c_hat**2 
+        # eta = 0.001683
+        n_discrete_steps = (int) (dt/eta)
+        print(eta,dt)
+        t = torch.linspace(t + dt, t, n_discrete_steps + 1, dtype=torch.float64)
+        for i in range(n_discrete_steps):
+            dt = torch.abs(t[i+1]- t[i])
+            u = fast_discrete_step_fn(u,t[i],dt)
+        return u
+    
+    def overdamped_langevin_iter(u, h, potential):
+        return u + potential*h + (2*h)**.5 * torch.randn_like(u)
+    
+    
+    def overdamped_langevin_corrector(model, u, t):
+        tt = torch.ones(
+            u.shape[0], device=u.device, dtype=torch.float64) * t
+        
+        score_fn = get_score_fn(config, sde, model, train=False)
+        for i in range(n_lang_iters):
+            score = score_fn(u,tt)
+            x,v = torch.chunk(u, 2, dim=1)
+            sx,sv = torch.chunk(score, 2, dim=1)
+            if score.shape[-1] == v.shape[-1]:
+                sv = score
+            if config.correct_speed:
+                v = overdamped_langevin_iter(v,h_lang,sv)
+            else:
+                x = overdamped_langevin_iter(x,h_lang,sx)
+            u = torch.cat((x,v), dim=1)
+
+            # make_image(u,color='red')
+        return u
+
+    def underdamped_langevin_corrector(model, uu, t):
+        x,v = torch.chunk(uu, 2, dim=1)
+        u = v if config.correct_speed else x 
+        ones = torch.ones(
+            u.shape[0], device=u.device, dtype=torch.float64)
+        
+        score_fn = get_score_fn(config, sde, model, train=False)
+        gamma_lang = .5
+        
+        for i in range(n_lang_iters):
+            x,v = torch.chunk(u, 2, dim=1)
+            score_t  = score_fn(u,ones*t)
+            x = x + v * h_lang
+            v = v + (score_t - gamma_lang * v ) * h_lang + (2 * gamma_lang * h_lang)**.5 * torch.randn_like(v)
+
+            u = torch.cat((x,v), dim=1)
+        return u 
+    
 def get_em_sampler(config, sde, sampling_shape, eps):
     ''' 
     Sampling from the ReverseSDE using Euler--Maruyama. 
