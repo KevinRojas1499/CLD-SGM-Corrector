@@ -119,6 +119,7 @@ class CLD(nn.Module):
                                                                     dtype=torch.float64, device=t.device)
 
             var0v = add_dimensions(var0v, self.config.is_image)
+        id = torch.eye(var0x.shape[1], dtype=torch.float64, device=t.device)
 
         beta_int = add_dimensions(self.beta_int_fn(t), self.config.is_image)
         multiplier = torch.exp(-4. * beta_int * self.g)
