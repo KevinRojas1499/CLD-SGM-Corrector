@@ -16,7 +16,7 @@ import torch.distributed as dist
 import matplotlib.pyplot as plt
 from matplotlib import cm
 
-from models import mlp
+from models import mlp, gmm
 from models.ema import ExponentialMovingAverage
 from models import utils as mutils
 from util.utils import make_dir, get_optimizer, optimization_manager, set_seeds, compute_eval_loss, compute_non_image_likelihood, broadcast_params, reduce_tensor, build_beta_fn, build_beta_int_fn
@@ -240,17 +240,27 @@ def evaluate(config, workdir):
         raise NotImplementedError('SDE %s is unknown.' % config.vpsde)
 
     score_model = mutils.create_model(config).to(config.device)
-    broadcast_params(score_model.parameters())
-    score_model = DDP(score_model, device_ids=[local_rank])
-    ema = ExponentialMovingAverage(
-        score_model.parameters(), decay=config.ema_rate)
+    if config.name != 'gmm':
+        broadcast_params(score_model.parameters())
+        score_model = DDP(score_model, device_ids=[local_rank])
+        ema = ExponentialMovingAverage(
+            score_model.parameters(), decay=config.ema_rate)
 
-    optim_params = score_model.parameters()
-    optimizer = get_optimizer(config, optim_params)
-    state = dict(optimizer=optimizer, model=score_model, ema=ema, step=0)
+        optim_params = score_model.parameters()
+        optimizer = get_optimizer(config, optim_params)
+        state = dict(optimizer=optimizer, model=score_model, ema=ema, step=0)
 
-    optimize_fn = optimization_manager(config)
-    eval_step_fn = losses.get_step_fn(False, optimize_fn, sde, config)
+        optimize_fn = optimization_manager(config)
+        eval_step_fn = losses.get_step_fn(False, optimize_fn, sde, config)
+
+        ckpt_path = os.path.join(checkpoint_dir, config.ckpt_file)
+        state = restore_checkpoint(ckpt_path, state, device=config.device)
+        ema.copy_to(score_model.parameters())
+
+        step = int(state['step'])
+        if global_rank == 0:
+            logging.info('Evaluating at training step %d' % step)
+        dist.barrier()
 
     sampling_shape = (config.sampling_batch_size,
                       config.data_dim)
@@ -259,14 +269,8 @@ def evaluate(config, workdir):
 
     likelihood_fn = likelihood.get_likelihood_fn(config, sde)
 
-    ckpt_path = os.path.join(checkpoint_dir, config.ckpt_file)
-    state = restore_checkpoint(ckpt_path, state, device=config.device)
-    ema.copy_to(score_model.parameters())
 
-    step = int(state['step'])
-    if global_rank == 0:
-        logging.info('Evaluating at training step %d' % step)
-    dist.barrier()
+
 
     if config.eval_loss:
         eval_loss = compute_eval_loss(
@@ -283,13 +287,14 @@ def evaluate(config, workdir):
         dist.barrier()
 
     if config.eval_sample:
+        print("Sampling")
         x, _, nfe = sampling_fn(score_model)
         file_name= f"{config.sampling_method}_{config.n_discrete_steps}_lang_{config.n_lang_iters}.png"
         logging.info('NFE: %d' % nfe)
 
-        l = 1.5
-        plt.xlim(-l,l)
-        plt.ylim(-l,l)
+        # l = 10
+        # plt.xlim(-l,l)
+        # plt.ylim(-l,l)
         plt.scatter(x.cpu().numpy()[:, 0], x.cpu().numpy()[:, 1], s=3)
         plt.savefig(os.path.join(sample_dir, file_name))
         plt.close()

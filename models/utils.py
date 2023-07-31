@@ -56,6 +56,9 @@ def get_score_fn(config, sde, model, train=False):
     model_fn = get_model_fn(model, train=train)
 
     def score_fn(u, t):
+        if config.name == 'gmm':
+            return model(u.type(torch.float32), t.type(torch.float32),sde)
+                
         score = model_fn(u.type(torch.float32), t.type(torch.float32))
         noise_multiplier = sde.noise_multiplier(t).type(torch.float32)
 

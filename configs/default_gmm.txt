@@ -2,31 +2,16 @@
 is_image             = false
 data_dim             = 2
 
-# Training
-snapshot_freq        = 10000
-snapshot_threshold   = 1
-log_freq             = 5000
-eval_freq            = 20000
-likelihood_threshold = 2000000
-likelihood_freq      = 50000
-n_eval_batches       = 1
-n_likelihood_batches = 1
-n_warmup_iters       = 0
-n_train_iters        = 800000
-save_freq            = 50000
-save_threshold       = 300000
-
 # Sampling
 sampling_method      = em
 sampling_eps         = 1e-3
 denoising            = false
-n_discrete_steps     = 75
-ckpt_file            = final_checkpoint.pth
-n_lang_iters         = 500
-overdamped_lang
+n_discrete_steps     = 500
+# n_lang_iters         = 10
+# overdamped_lang
 
 # Model
-name                = mlp
+name                = gmm
 ema_rate            = 0.999
 numerical_eps       = 1e-6
 

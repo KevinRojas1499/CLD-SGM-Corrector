@@ -123,16 +123,17 @@ class CLD(nn.Module):
         beta_int = add_dimensions(self.beta_int_fn(t), self.config.is_image)
         multiplier = torch.exp(-4. * beta_int * self.g)
 
-        var_xx = var0x + (1. / multiplier) - 1. + 4. * beta_int * self.g * (var0x - 1.) + 4. * \
+        var_xx = var0x + ((1. / multiplier) - 1.)*id + 4. * beta_int * self.g * (var0x - id) + 4. * \
             beta_int ** 2. * self.g ** 2. * \
-            (var0x - 2.) + 16. * self.g ** 4. * beta_int ** 2. * var0v
+            (var0x - 2.*id) + 16. * self.g ** 4. * beta_int ** 2. * var0v
         var_xv = -var0x * beta_int + 4. * self.g ** 2. * beta_int * var0v - 2. * self.g * \
-            beta_int ** 2. * (var0x - 2.) - 8. * \
+            beta_int ** 2. * (var0x - 2.*id) - 8. * \
             self.g ** 3. * beta_int ** 2. * var0v
-        var_vv = self.f ** 2. * ((1. / multiplier) - 1.) / 4. + self.f * beta_int - 4. * self.g * beta_int * \
+        var_vv = (self.f ** 2. * ((1. / multiplier) - 1.) / 4. + self.f * beta_int )*id- 4. * self.g * beta_int * \
             var0v + 4. * self.g ** 2. * beta_int ** 2. * \
-            var0v + var0v + beta_int ** 2. * (var0x - 2.)
-        return [var_xx * multiplier + self.numerical_eps, var_xv * multiplier, var_vv * multiplier + self.numerical_eps]
+            var0v + var0v + beta_int ** 2. * (var0x - 2.*id)
+        
+        return [var_xx * multiplier + self.numerical_eps*id, var_xv * multiplier, var_vv * multiplier + self.numerical_eps * id]
 
     def mean_and_var(self, u, t, var0x=None, var0v=None):
         return self.mean(u, t), self.var(t, var0x, var0v)
