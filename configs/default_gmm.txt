@@ -3,12 +3,21 @@ is_image             = false
 data_dim             = 2
 
 # Sampling
-sampling_method      = em
+sampling_method      = corrector
 sampling_eps         = 1e-3
 denoising            = false
-n_discrete_steps     = 500
-# n_lang_iters         = 10
-# overdamped_lang
+n_discrete_steps     = 200
+
+# Corrector Hyperparameters
+samples_file_name    = 5gmm_chat2
+plot_trajectory      = False
+
+n_lang_iters         = 3
+h_lang               = .1
+overdamped_lang
+micro_eps            = 1e-5
+eta                  = 1e-3
+predictor_fast_steps = 5
 
 # Model
 name                = gmm

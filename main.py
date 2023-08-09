@@ -225,9 +225,21 @@ if __name__ == '__main__':
     p.add('--n_lang_iters', type=int)
     p.add('--striding', choices=['linear', 'quadratic'], default='linear')
     p.add('--sampling_eps', type=float)
+
+
+    # Corrector Hyperparameters
+    p.add('--samples_file_name')
+    p.add('--plot_trajectory',type=bool)
+
+        # Corrector
     p.add('--correct_speed', action='store_true')
     p.add('--overdamped_lang', action='store_true')
-
+    p.add('--h_lang',type=float, default=.1)
+        # Predidctor
+    p.add('--micro_eps',type=float, default=1e-5)
+    p.add('--eta',type=float, default=1e-3)
+    p.add('--predictor_fast_steps',type=int, default=5) # This is we take fast_steps of size eta and then we apply the corrector steps
+    
     # Likelihood
     p.add('--likelihood_solver', default='scipy_solver')
     p.add('--likelihood_solver_options',

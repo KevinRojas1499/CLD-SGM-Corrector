@@ -90,16 +90,27 @@ def get_ode_sampler(config, sde, sampling_shape, eps):
 
     return ode_sampler
 
-def get_corrector_sampler(config, sde, sampling_shape, eps):
+def get_corrector_sampler(config, sde, sampling_shape, sampling_eps):
 
     gc.collect()
 
-    c_hat = 5
-    gamma = sde.gamma
+    beta = sde.beta_fn(0)
     m_inv = sde.m_inv
+    gamma = 2/m_inv**.5
+    # Discrete stuff
+    eps = config.micro_eps
+    eta = config.eta
 
+    predictor_fast_steps = config.predictor_fast_steps
+
+    # Langevin parameters    
     n_lang_iters = config.n_lang_iters
-    h_lang = .01
+    h_lang = config.h_lang
+    
+    c_hat = 2 * (gamma/(eta * beta)) **.5
+    print("CHAT ",c_hat)
+
+    # Plotting
     counter = 0
 
     def make_image(u, color='blue'):
@@ -109,13 +120,13 @@ def get_corrector_sampler(config, sde, sampling_shape, eps):
         file_name= f"{counter}.png"
         counter+=1
         l = 1.5
-        plt.xlim(-l,l)
-        plt.ylim(-l,l)
+        # plt.xlim(-l,l)
+        # plt.ylim(-l,l)
         x, _ = torch.chunk( u , 2, dim = 1)
         plt.scatter(x.cpu().numpy()[:, 0], x.cpu().numpy()[:, 1], color=color, s=3)
         plt.savefig(os.path.join("./root/trajectory/", file_name))
         plt.close()
-
+        # print(torch.sum(torch.isnan(x)))
 
     def step_fn(model, u, t, dt):
         score_fn = get_score_fn(config, sde, model, train=False)
@@ -125,28 +136,21 @@ def get_corrector_sampler(config, sde, sampling_shape, eps):
         return u, u_mean
 
     def gradV(x):
-        epss = 1e-5
         f1 = lambda x : torch.sin(x)
-        return x + c_hat *  f1(x/epss)
+        return x + c_hat *  f1(x/eps)
         
-    def fast_discrete_step_fn(u,t,eta):
+    def fast_discrete_step_fn(u,t,dt):
         beta = sde.beta_fn(t)
-
         x,v = torch.chunk(u, 2, dim=1)
-        v = (v + beta * gradV(x) * eta)/(1-gamma * m_inv * beta * eta)
-        x = x - m_inv * beta * v * eta
+        v = (v + beta * gradV(x) * dt)/(1-4 / gamma  * beta * dt)
+        x = x - 4/gamma**2 * beta * v * dt
         return torch.cat((x,v), dim=1)
 
 
     def discrete_steps(u, t , dt):
-        beta = sde.beta_fn(t)
-        eta = 4 * gamma * beta / c_hat**2 
-        # eta = 0.001683
-        n_discrete_steps = (int) (dt/eta)
-        print(eta,dt)
-        t = torch.linspace(t + dt, t, n_discrete_steps + 1, dtype=torch.float64)
-        for i in range(n_discrete_steps):
-            dt = torch.abs(t[i+1]- t[i])
+        t = torch.linspace(t + dt, t, predictor_fast_steps + 1, dtype=torch.float64)
+        for i in range(predictor_fast_steps):
+            dt = t[i+1]- t[i]
             u = fast_discrete_step_fn(u,t[i],dt)
         return u
     
@@ -195,7 +199,7 @@ def get_corrector_sampler(config, sde, sampling_shape, eps):
     
 
     def corrector_sampler(model, u=None):
-
+        plot = config.plot_trajectory
         with torch.no_grad():
             if u is None:
                 x, v = sde.prior_sampling(sampling_shape)
@@ -204,8 +208,14 @@ def get_corrector_sampler(config, sde, sampling_shape, eps):
                 else:
                     u = x
 
-            n_discrete_steps = config.n_discrete_steps if not config.denoising else config.n_discrete_steps - 1
-            t_final = 1. - eps
+
+            t_final = 1. - sampling_eps
+            t_final = 1
+            print(t_final)
+            effective_step_size = predictor_fast_steps * eta
+            # Notice that every predictor steps spans a range of predictor_fast_steps * eta
+            n_discrete_steps = (int) (t_final/effective_step_size)
+            print(n_discrete_steps)
             t = torch.linspace(
                 0, t_final,  n_discrete_steps + 1, dtype=torch.float64)
             if config.striding == 'linear':
@@ -213,18 +223,20 @@ def get_corrector_sampler(config, sde, sampling_shape, eps):
             elif config.striding == 'quadratic':
                 t = t_final * torch.flip(1 - (t / t_final) ** 2., dims=[0])
 
-            for i in range(n_discrete_steps):
-                dt = t[i + 1] - t[i]
-                # u = discrete_steps(u, t[i], dt)
-                u, _ = step_fn(model, u, t[i], dt)
-                plot = (i>450)
+            t = 0
+            plot = config.plot_trajectory
+            while t <= t_final:
+                print(t)
+                u = discrete_steps(u, t, effective_step_size)
+                # u, _ = step_fn(model, u, t[i], dt)
                 if plot:
                     make_image(u,color='blue')
 
+                t+=effective_step_size
                 if config.overdamped_lang:
-                    u = overdamped_langevin_corrector(model, u, t[i+1],plot=plot)
+                    u = overdamped_langevin_corrector(model, u, t,plot=plot)
                 else:
-                    u = underdamped_langevin_corrector(model, u, t[i+1])
+                    u = underdamped_langevin_corrector(model, u, t)
 
 
             if config.denoising:

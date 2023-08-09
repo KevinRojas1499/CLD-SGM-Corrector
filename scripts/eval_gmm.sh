@@ -7,4 +7,4 @@ python main.py -cc configs/default_gmm.txt  --mode eval --workdir ${WORK_DIR} --
     --training_batch_size 512 --testing_batch_size 512 --sampling_batch_size 512 \
     --dataset multimodal_swissroll --root ${ROOT} \
     --eval_folder ${SAMPLES} --eval_sample 
-mv ${ROOT}/${WORK_DIR}_seed_0/${SAMPLES}/samples/* ${ROOT}/gmm_samples/
+mv ${ROOT}/${WORK_DIR}_seed_0/${SAMPLES}/samples/* ${ROOT}/gmm_samples_new/

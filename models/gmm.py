@@ -20,10 +20,10 @@ class GMM(nn.Module):
 
         n1 = nn.Linear(2,3)
 
-        c = torch.tensor([.5,.5]).to(torch.float64)
+        c = torch.tensor([.2,.2,.2,.2,.2]).to(torch.float64)
         n = c.shape[0]
-        means_x = torch.tensor([[-5,-5],[5,5]]).to(torch.float64)
-        variances_x = torch.tensor([[[2,0],[0,2]], [[2,1],[1,2]]]).to(torch.float64)
+        means_x = torch.tensor([[-5,-5],[-5,5],[5,-5],[5,5],[0,0]]).to(torch.float64)
+        variances_x = torch.tensor([[[2,0],[0,2]], [[2,1],[1,2]],[[2,0],[0,2]], [[2,1],[1,2]],[[1,0],[0,1]]]).to(torch.float64)
 
         means = torch.zeros((n,4)).to(torch.float64)
         variances = torch.zeros((n,4,4)).to(torch.float64)
@@ -72,8 +72,8 @@ class Gaussian():
         self.var = variance   
 
 
-    def eval(self,x,t,sde):
-        mean_t, var_t = self.parameters_for_eval(t,sde)
+    def eval(self,x,t,sde, params=None):
+        mean_t, var_t = self.parameters_for_eval(t,sde) if params == None else params
         normal = MultivariateNormal(mean_t,covariance_matrix=var_t)
         return torch.exp(normal.log_prob(x))
 
@@ -81,7 +81,7 @@ class Gaussian():
         mean_t, var_t = self.parameters_for_eval(t,sde)
         shift = x - mean_t
         self.batch_mv(torch.linalg.inv(var_t),shift)
-        return - self.eval(x,t, sde).unsqueeze(-1) * self.batch_mv(torch.linalg.inv(var_t),shift)
+        return - self.eval(x,t, sde,params=(mean_t,var_t)).unsqueeze(-1) * self.batch_mv(torch.linalg.inv(var_t),shift)
 
     def parameters_for_eval(self, t, sde):
         t =  torch.tensor([t[0]]).to('cuda')

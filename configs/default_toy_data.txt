@@ -17,13 +17,15 @@ save_freq            = 50000
 save_threshold       = 300000
 
 # Sampling
-sampling_method      = em
+sampling_method      = corrector
 sampling_eps         = 1e-3
 denoising            = false
-n_discrete_steps     = 75
+n_discrete_steps     = 500
 ckpt_file            = final_checkpoint.pth
-n_lang_iters         = 500
+n_lang_iters         = 3
 overdamped_lang
+
+samples_file_name    = swiss
 
 # Model
 name                = mlp

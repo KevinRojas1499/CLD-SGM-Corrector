@@ -289,7 +289,11 @@ def evaluate(config, workdir):
     if config.eval_sample:
         print("Sampling")
         x, _, nfe = sampling_fn(score_model)
-        file_name= f"{config.sampling_method}_{config.n_discrete_steps}_lang_{config.n_lang_iters}.png"
+        file_name = file_name= f"{config.samples_file_name}_{config.sampling_method}_{config.n_discrete_steps}"
+        if config.sampling_method == 'corrector':
+            file_name+= f"_lang_{config.n_lang_iters}.png"
+        else:
+            file_name+= ".png"
         logging.info('NFE: %d' % nfe)
 
         # l = 10

@@ -27,7 +27,7 @@ class MLP(nn.Module):
 
         if self.x_input and self.v_input:
             in_dim = input_dim * 2 + index_dim
-            out_dim = input_dim #* 2
+            out_dim = input_dim * 2
         else:
             in_dim = input_dim + index_dim
             out_dim = input_dim
