@@ -233,10 +233,11 @@ def get_corrector_sampler(config, sde, sampling_shape, sampling_eps):
                     make_image(u,color='blue')
 
                 t+=effective_step_size
-                if config.overdamped_lang:
-                    u = overdamped_langevin_corrector(model, u, t,plot=plot)
-                else:
-                    u = underdamped_langevin_corrector(model, u, t)
+                if t<= t_final:
+                    if config.overdamped_lang:
+                        u = overdamped_langevin_corrector(model, u, t,plot=plot)
+                    else:
+                        u = underdamped_langevin_corrector(model, u, t)
 
 
             if config.denoising:
