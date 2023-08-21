@@ -229,7 +229,8 @@ if __name__ == '__main__':
 
     # Corrector Hyperparameters
     p.add('--samples_file_name')
-    p.add('--plot_trajectory',type=bool)
+    p.add('--plot_trajectory', action="store_true")
+    p.add('--correct', choices=['position','speed','both'])
 
         # Corrector
     p.add('--correct_speed', action='store_true')

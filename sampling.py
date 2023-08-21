@@ -169,7 +169,10 @@ def get_corrector_sampler(config, sde, sampling_shape, sampling_eps):
             sx,sv = torch.chunk(score, 2, dim=1)
             if score.shape[-1] == v.shape[-1]:
                 sv = score
-            if config.correct_speed:
+            if config.correct == 'both':
+                x = overdamped_langevin_iter(x,h_lang,sx)
+                v = overdamped_langevin_iter(v,h_lang,sv)
+            elif config.correct == 'speed':
                 v = overdamped_langevin_iter(v,h_lang,sv)
             else:
                 x = overdamped_langevin_iter(x,h_lang,sx)

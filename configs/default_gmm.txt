@@ -9,15 +9,16 @@ denoising            = false
 n_discrete_steps     = 200
 
 # Corrector Hyperparameters
-samples_file_name    = 5gmm_chat2
-plot_trajectory      = False
+samples_file_name    = 5mm_correct_both
+plot_trajectory      = True
 
-n_lang_iters         = 3
+n_lang_iters         = 15
 h_lang               = .1
 overdamped_lang
 micro_eps            = 1e-5
 eta                  = 1e-3
 predictor_fast_steps = 5
+correct              = both
 
 # Model
 name                = gmm

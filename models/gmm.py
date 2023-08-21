@@ -70,7 +70,8 @@ class Gaussian():
         self.d = mean.shape[0]
         self.mean = mean 
         self.var = variance   
-
+        self.varx = self.var[0:2,0:2]
+        self.varv = self.var[2:4,2:4]
 
     def eval(self,x,t,sde, params=None):
         mean_t, var_t = self.parameters_for_eval(t,sde) if params == None else params
@@ -80,18 +81,15 @@ class Gaussian():
     def score_contribution(self,x,t, sde):
         mean_t, var_t = self.parameters_for_eval(t,sde)
         shift = x - mean_t
-        self.batch_mv(torch.linalg.inv(var_t),shift)
         return - self.eval(x,t, sde,params=(mean_t,var_t)).unsqueeze(-1) * self.batch_mv(torch.linalg.inv(var_t),shift)
 
     def parameters_for_eval(self, t, sde):
         t =  torch.tensor([t[0]]).to('cuda')
-        mean_t, v = sde.mean_and_var(self.mean.unsqueeze(0),t, var0x=self.var[0:2,0:2], var0v=self.var[2:4,2:4])
+        mean_t, v = sde.mean_and_var(self.mean.unsqueeze(0),t, var0x=self.varx, var0v=self.varv)
         n = v[0].shape[0]
         vv = torch.zeros((2*n,2*n),dtype=torch.float64).to('cuda')
         vv[0:2, 0:2] = v[0]
         vv[2:4,0:2] = v[1]
         vv[0:2,2:4] = v[1]
         vv[2:4,2:4] = v[2]
-        # varrs = torch.Tensor.repeat(vv, (n,1,1))
-        # print(t,mean_t,vv)
         return mean_t,vv
