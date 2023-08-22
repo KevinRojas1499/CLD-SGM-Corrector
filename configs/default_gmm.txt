@@ -4,20 +4,21 @@ data_dim             = 2
 
 # Sampling
 sampling_method      = corrector
-sampling_eps         = 1e-3
+sampling_eps         = 5e-3
 denoising            = false
 n_discrete_steps     = 200
 
 # Corrector Hyperparameters
 samples_file_name    = 5mm_correct_both
-plot_trajectory      = True
+plot_trajectory      = False # This should only be true for debugging purposes, it uses much memory
 
-n_lang_iters         = 15
+n_lang_iters         = 20
 h_lang               = .1
-overdamped_lang
+overdamped_lang      = True
+langevin_friction    = .001
 micro_eps            = 1e-5
 eta                  = 1e-3
-predictor_fast_steps = 5
+predictor_fast_steps = 10
 correct              = both
 
 # Model

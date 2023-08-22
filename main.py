@@ -85,6 +85,11 @@ def main(config):
                 gfile_stream = open(os.path.join(eval_dir, 'stdout.txt'), 'w')
                 set_logger(gfile_stream)
 
+                images_dir = os.path.join(workdir, config.samples_file_name)
+                if not os.path.exists(images_dir):
+                    os.makedirs(images_dir)
+
+
             if config.is_image:
                 import run_lib
                 run_lib.evaluate(config, workdir)
@@ -235,6 +240,7 @@ if __name__ == '__main__':
         # Corrector
     p.add('--correct_speed', action='store_true')
     p.add('--overdamped_lang', action='store_true')
+    p.add('--langevin_friction', type=float, default=.1)
     p.add('--h_lang',type=float, default=.1)
         # Predidctor
     p.add('--micro_eps',type=float, default=1e-5)

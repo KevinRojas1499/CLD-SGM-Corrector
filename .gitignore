@@ -4,3 +4,4 @@
 /util/__pycache__/
 *.pyc
 /root/
+/wandb

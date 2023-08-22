@@ -9,7 +9,7 @@ import torch
 import gc
 from torchdiffeq import odeint
 from models.utils import get_score_fn
-
+from tqdm import tqdm
 
 def get_sampling_fn(config, sde, sampling_shape, eps):
     sampler_name = config.sampling_method
@@ -106,6 +106,7 @@ def get_corrector_sampler(config, sde, sampling_shape, sampling_eps):
     # Langevin parameters    
     n_lang_iters = config.n_lang_iters
     h_lang = config.h_lang
+    langevin_friction = config.langevin_friction
     
     c_hat = 2 * (gamma/(eta * beta)) **.5
     print("CHAT ",c_hat)
@@ -155,7 +156,14 @@ def get_corrector_sampler(config, sde, sampling_shape, sampling_eps):
         return u
     
     def overdamped_langevin_iter(u, h, potential):
+        # Notice that the potential has a +, correctly it is a - but since the score needs a - to be the right potential I fix it here
         return u + potential*h + (2*h)**.5 * torch.randn_like(u)
+    
+    def underdamped_langevin_iter(u, v, h, potential):
+        # Notice that the potential has a +, correctly it is a - but since the score needs a - to be the right potential I fix it here
+        u = u + v * h
+        v = v + (potential - langevin_friction * v)*h + (2*h*langevin_friction )**.5 * torch.randn_like(u)
+        return u,v
     
     
     def overdamped_langevin_corrector(model, u, t, plot=False):
@@ -182,22 +190,15 @@ def get_corrector_sampler(config, sde, sampling_shape, sampling_eps):
                 make_image(u,color='red')
         return u
 
-    def underdamped_langevin_corrector(model, uu, t):
-        x,v = torch.chunk(uu, 2, dim=1)
-        u = v if config.correct_speed else x 
-        ones = torch.ones(
-            u.shape[0], device=u.device, dtype=torch.float64)
-        
-        score_fn = get_score_fn(config, sde, model, train=False)
-        gamma_lang = .5
-        
-        for i in range(n_lang_iters):
-            x,v = torch.chunk(u, 2, dim=1)
-            score_t  = score_fn(u,ones*t)
-            x = x + v * h_lang
-            v = v + (score_t - gamma_lang * v ) * h_lang + (2 * gamma_lang * h_lang)**.5 * torch.randn_like(v)
+    def underdamped_langevin_corrector(model, u, t):
+        tt = torch.ones(u.shape[0], device=u.device, dtype=torch.float64) * t
 
-            u = torch.cat((x,v), dim=1)
+        score_fn = get_score_fn(config, sde, model, train=False)
+        v = torch.randn_like(u)
+        for i in range(n_lang_iters):
+            score = score_fn(u,1. - tt)
+            if config.correct == 'both':
+                u, v = underdamped_langevin_iter(u,v,h_lang,score)
         return u 
     
 
@@ -213,11 +214,10 @@ def get_corrector_sampler(config, sde, sampling_shape, sampling_eps):
 
 
             t_final = 1. - sampling_eps
-            t_final = 1
-            print(t_final)
+            print("Final time " , t_final)
             effective_step_size = predictor_fast_steps * eta
             # Notice that every predictor steps spans a range of predictor_fast_steps * eta
-            n_discrete_steps = (int) (t_final/effective_step_size)
+            n_discrete_steps = (int) (1./effective_step_size)
             print(n_discrete_steps)
             t = torch.linspace(
                 0, t_final,  n_discrete_steps + 1, dtype=torch.float64)
@@ -228,8 +228,7 @@ def get_corrector_sampler(config, sde, sampling_shape, sampling_eps):
 
             t = 0
             plot = config.plot_trajectory
-            while t <= t_final:
-                print(t)
+            for i in tqdm(range(n_discrete_steps)):
                 u = discrete_steps(u, t, effective_step_size)
                 # u, _ = step_fn(model, u, t[i], dt)
                 if plot:

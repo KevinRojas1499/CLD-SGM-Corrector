@@ -27,6 +27,8 @@ import sampling
 import likelihood
 from util.toy_data import inf_data_gen
 
+import wandb
+import pandas as pd
 
 def train(config, workdir):
     ''' Main training script. '''
@@ -211,6 +213,60 @@ def train(config, workdir):
     dist.barrier()
 
 
+def get_run_name(config):
+    file_name = file_name= f"{config.samples_file_name}_{config.sampling_method}"
+    if config.sampling_method == 'corrector':
+        file_name+= f"_{config.predictor_fast_steps}_{config.eta}_lang_{config.n_lang_iters}"
+
+    return file_name
+def create_relevant_config(config):
+    small_config = {
+        "sampling_method": config.sampling_method,
+        "sampling_eps": config.sampling_eps,
+        "denoising": config.denoising,
+        "n_discrete_steps": config.n_discrete_steps,
+        "n_lang_iters": config.n_lang_iters,
+        "h_lang": config.h_lang,
+        "overdamped_lang": config.overdamped_lang,
+        "langevin_friction": config.langevin_friction,
+        "micro_eps": config.micro_eps,
+        "eta": config.eta,
+        "predictor_fast_steps": config.predictor_fast_steps,
+        "correct": config.correct
+    }
+    return small_config
+
+def compute_stats_gmm(data):
+    limit = 3
+    clusters = [ [] for i in range(5)]
+    # center, up right, up left , down left, down right
+    for point in data:
+        x,y = point
+        if x > limit and y > limit:
+            clusters[1].append(point)
+        elif x < -limit and y > limit:
+            clusters[2].append(point)
+        elif x < -limit and y < -limit:
+            clusters[limit].append(point)
+        elif x > limit and y < -limit:
+            clusters[4].append(point)
+        else:
+            clusters[0].append(point)
+
+    stats_x = {"center":0,"up right":0, "up left":0, "down left": 0, "down right":0}
+    stats_y = {"center":0,"up right":0, "up left":0, "down left": 0, "down right":0}
+    weights = {"center":0,"up right":0, "up left":0, "down left": 0, "down right":0}
+
+    for i, (key, value) in enumerate((stats_x.items())):
+        mean = np.mean(np.array(clusters[i]),axis=0) 
+        stats_x[key] = mean[0]
+        stats_y[key] = mean[1]
+        weights[key] = len(clusters[i])/len(data)
+    
+    return stats_x, stats_y, weights
+
+
+
 def evaluate(config, workdir):
     ''' Main evaluation script. '''
 
@@ -283,23 +339,38 @@ def evaluate(config, workdir):
         mean_nll = compute_non_image_likelihood(
             config, sde, state, likelihood_fn, inf_data_gen)
         if global_rank == 0:
-            logging.info("Mean NLL: %.5f" % mean_nll.item())
+            logging.info("Mean N-6.838L: %.5f" % mean_nll.item())
         dist.barrier()
 
     if config.eval_sample:
+        run_name = get_run_name(config)
+        wandb.init(
+            # set the wandb project where this run will be logged
+            project="Corrector Steps",
+            name= run_name,
+            # track hyperparameters and run metadata
+            config=config
+        )
         print("Sampling")
+        relevant_config = create_relevant_config(config)
         x, _, nfe = sampling_fn(score_model)
-        file_name = file_name= f"{config.samples_file_name}_{config.sampling_method}_{config.predictor_fast_steps}_{config.eta}"
-        if config.sampling_method == 'corrector':
-            file_name+= f"_lang_{config.n_lang_iters}.png"
-        else:
-            file_name+= ".png"
+
         logging.info('NFE: %d' % nfe)
 
-        # l = 10
-        # plt.xlim(-l,l)
-        # plt.ylim(-l,l)
-        plt.scatter(x.cpu().numpy()[:, 0], x.cpu().numpy()[:, 1], s=3)
-        plt.savefig(os.path.join(sample_dir, file_name))
-        plt.close()
+        x = x.cpu().numpy()
+        stats_x, stats_y, weights = compute_stats_gmm(x)
+        combined_stats = {}
+        for key, value in stats_x.items():
+            combined_stats[key] = weights[key], stats_x[key], stats_y[key]
+        print(combined_stats)
+        stats_df = pd.DataFrame(combined_stats, index=["Weights","Mean x", "Mean y"])
+        stats_tbl = wandb.Table(data=stats_df)
+        config_df = pd.DataFrame(relevant_config,index=[0])
+        config_tbl = wandb.Table(data=config_df)
+
+        table = wandb.Table(data=x,columns=["x","y"])
+        wandb.log({"Generated Samples" : wandb.plot.scatter(table,"x","y")})
+        wandb.log({"Summary statistics " : stats_tbl, "Config" : config_tbl})
+
+        wandb.finish()
 

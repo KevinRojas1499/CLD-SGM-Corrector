@@ -22,7 +22,7 @@ class GMM(nn.Module):
 
         c = torch.tensor([.2,.2,.2,.2,.2]).to(torch.float64)
         n = c.shape[0]
-        means_x = torch.tensor([[-5,-5],[-5,5],[5,-5],[5,5],[0,0]]).to(torch.float64)
+        means_x = torch.tensor([[-7,-7],[-7,7],[7,-7],[7,7],[0,0]]).to(torch.float64)
         variances_x = torch.tensor([[[2,0],[0,2]], [[2,1],[1,2]],[[2,0],[0,2]], [[2,1],[1,2]],[[1,0],[0,1]]]).to(torch.float64)
 
         means = torch.zeros((n,4)).to(torch.float64)
