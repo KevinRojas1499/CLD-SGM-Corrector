@@ -22,7 +22,7 @@ class GMM(nn.Module):
 
         c = torch.tensor([.2,.2,.2,.2,.2]).to(torch.float64)
         n = c.shape[0]
-        means_x = torch.tensor([[-7,-7],[-7,7],[7,-7],[7,7],[0,0]]).to(torch.float64)
+        means_x = torch.tensor([[0,0],[0,14],[14,0],[14,14],[7,7]]).to(torch.float64)
         variances_x = torch.tensor([[[2,0],[0,2]], [[2,1],[1,2]],[[2,0],[0,2]], [[2,1],[1,2]],[[1,0],[0,1]]]).to(torch.float64)
 
         means = torch.zeros((n,4)).to(torch.float64)
@@ -76,8 +76,14 @@ class Gaussian():
     def eval(self,x,t,sde, params=None):
         mean_t, var_t = self.parameters_for_eval(t,sde) if params == None else params
         normal = MultivariateNormal(mean_t,covariance_matrix=var_t)
-        return torch.exp(normal.log_prob(x))
-
+        
+        try:
+            density = torch.exp(normal.log_prob(x))
+        except:
+            print("VALUES OUT OF DISTRIBUTION")
+            density = torch.zeros(x.shape[0], device='cuda')
+        return density
+    
     def score_contribution(self,x,t, sde):
         mean_t, var_t = self.parameters_for_eval(t,sde)
         shift = x - mean_t

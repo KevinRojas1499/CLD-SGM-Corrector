@@ -2,6 +2,9 @@
 is_image             = false
 data_dim             = 2
 
+# Wandb info
+wandb_project        = Swiss
+
 # Training
 snapshot_freq        = 10000
 snapshot_threshold   = 1
@@ -18,14 +21,28 @@ save_threshold       = 300000
 
 # Sampling
 sampling_method      = corrector
-sampling_eps         = 1e-3
+sampling_eps         = 5e-3
 denoising            = false
 n_discrete_steps     = 500
 ckpt_file            = final_checkpoint.pth
-n_lang_iters         = 3
-overdamped_lang
 
 samples_file_name    = swiss
+
+plot_trajectory      = True # This should only be true for debugging purposes, it uses much memory
+
+
+# Corrector Hyperparameters
+samples_file_name    = 5mm_correct_both
+plot_trajectory      = True # This should only be true for debugging purposes, it uses much memory
+
+n_lang_iters         = 200
+h_lang               = .1
+overdamped_lang      = True
+micro_eps            = 1e-5
+eta                  = 1e-3
+predictor_fast_steps = 10
+correct              = both
+
 
 # Model
 name                = mlp

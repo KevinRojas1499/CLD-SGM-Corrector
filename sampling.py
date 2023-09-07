@@ -94,14 +94,17 @@ def get_corrector_sampler(config, sde, sampling_shape, sampling_eps):
 
     gc.collect()
 
+    t_final = 1. - sampling_eps
+    n_discrete_steps = config.n_discrete_steps
+
     beta = sde.beta_fn(0)
     m_inv = sde.m_inv
     gamma = 2/m_inv**.5
     # Discrete stuff
     eps = config.micro_eps
-    eta = config.eta
-
     predictor_fast_steps = config.predictor_fast_steps
+    eta = t_final/n_discrete_steps/predictor_fast_steps
+
 
     # Langevin parameters    
     n_lang_iters = config.n_lang_iters
@@ -109,20 +112,21 @@ def get_corrector_sampler(config, sde, sampling_shape, sampling_eps):
     langevin_friction = config.langevin_friction
     
     c_hat = 2 * (gamma/(eta * beta)) **.5
-    print("CHAT ",c_hat)
+    print(f"CHAT {c_hat}, ETA {eta}")
 
     # Plotting
     counter = 0
 
-    def make_image(u, color='blue'):
+    def make_image(u, color='blue',name=None):
         import matplotlib.pyplot as plt
         import os
         nonlocal counter
-        file_name= f"{counter}.png"
+        file_name= f"{counter}.png" if name == None else name
         counter+=1
-        l = 1.5
-        # plt.xlim(-l,l)
-        # plt.ylim(-l,l)
+        l = 13
+        bias = 7
+        plt.xlim(-l + bias,l + bias)
+        plt.ylim(-l + bias,l + bias)
         x, _ = torch.chunk( u , 2, dim = 1)
         plt.scatter(x.cpu().numpy()[:, 0], x.cpu().numpy()[:, 1], color=color, s=3)
         plt.savefig(os.path.join("./root/trajectory/", file_name))
@@ -136,6 +140,14 @@ def get_corrector_sampler(config, sde, sampling_shape, sampling_eps):
         u, u_mean = discrete_step_fn(u, t, dt)
         return u, u_mean
 
+    def get_edm_discretization(num, device):
+                rho=7
+                sigma_min = 0.002
+                step_indices = torch.arange(num, dtype=torch.float64, device=device)
+                t_steps = (1 ** (1 / rho) + step_indices / (num - 1) * (sigma_min ** (1 / rho) - 1 ** (1 / rho))) ** rho
+                t_steps = torch.cat([t_steps, torch.zeros_like(t_steps[:1])]) # t_N = 0
+                return t_steps
+
     def gradV(x):
         f1 = lambda x : torch.sin(x)
         return x + c_hat *  f1(x/eps)
@@ -143,6 +155,7 @@ def get_corrector_sampler(config, sde, sampling_shape, sampling_eps):
     def fast_discrete_step_fn(u,t,dt):
         beta = sde.beta_fn(t)
         x,v = torch.chunk(u, 2, dim=1)
+        dt = -dt
         v = (v + beta * gradV(x) * dt)/(1-4 / gamma  * beta * dt)
         x = x - 4/gamma**2 * beta * v * dt
         return torch.cat((x,v), dim=1)
@@ -185,9 +198,6 @@ def get_corrector_sampler(config, sde, sampling_shape, sampling_eps):
             else:
                 x = overdamped_langevin_iter(x,h_lang,sx)
             u = torch.cat((x,v), dim=1)
-
-            if plot:
-                make_image(u,color='red')
         return u
 
     def underdamped_langevin_corrector(model, u, t):
@@ -213,11 +223,10 @@ def get_corrector_sampler(config, sde, sampling_shape, sampling_eps):
                     u = x
 
 
-            t_final = 1. - sampling_eps
             print("Final time " , t_final)
             effective_step_size = predictor_fast_steps * eta
             # Notice that every predictor steps spans a range of predictor_fast_steps * eta
-            n_discrete_steps = (int) (1./effective_step_size)
+
             print(n_discrete_steps)
             t = torch.linspace(
                 0, t_final,  n_discrete_steps + 1, dtype=torch.float64)
@@ -228,19 +237,23 @@ def get_corrector_sampler(config, sde, sampling_shape, sampling_eps):
 
             t = 0
             plot = config.plot_trajectory
-            for i in tqdm(range(n_discrete_steps)):
+            bar = tqdm(range(n_discrete_steps - 1))
+            for i in bar:
                 u = discrete_steps(u, t, effective_step_size)
                 # u, _ = step_fn(model, u, t[i], dt)
                 if plot:
-                    make_image(u,color='blue')
+                    make_image(u,color='blue',name=f"{i}_{t:.3f}.png")
 
                 t+=effective_step_size
-                if t<= t_final:
-                    if config.overdamped_lang:
-                        u = overdamped_langevin_corrector(model, u, t,plot=plot)
-                    else:
-                        u = underdamped_langevin_corrector(model, u, t)
+                bar.set_description(f"T : {t : .3f}")
+                if config.overdamped_lang:
+                    u = overdamped_langevin_corrector(model, u, t,plot=plot)
+                else:
+                    u = underdamped_langevin_corrector(model, u, t)
+                if plot:
+                    make_image(u,color='red',name=f"{i}_{t:.3f}.png")
 
+            u, _ = step_fn(model, u, t, t_final - t)
 
             if config.denoising:
                 _, u = step_fn(model, u, 1. - eps, eps)

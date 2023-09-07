@@ -214,9 +214,9 @@ def train(config, workdir):
 
 
 def get_run_name(config):
-    file_name = file_name= f"{config.samples_file_name}_{config.sampling_method}"
+    file_name = file_name= f"{config.sampling_method}_{config.n_discrete_steps}"
     if config.sampling_method == 'corrector':
-        file_name+= f"_{config.predictor_fast_steps}_{config.eta}_lang_{config.n_lang_iters}"
+        file_name+= f"_{config.predictor_fast_steps}_{config.eta : .3f}_lang_{config.n_lang_iters}"
 
     return file_name
 def create_relevant_config(config):
@@ -238,17 +238,18 @@ def create_relevant_config(config):
 
 def compute_stats_gmm(data):
     limit = 3
+    bias = 7
     clusters = [ [] for i in range(5)]
     # center, up right, up left , down left, down right
     for point in data:
         x,y = point
-        if x > limit and y > limit:
+        if x > limit + bias and y > limit + bias:
             clusters[1].append(point)
-        elif x < -limit and y > limit:
+        elif x < -limit + bias and y > limit + bias:
             clusters[2].append(point)
-        elif x < -limit and y < -limit:
-            clusters[limit].append(point)
-        elif x > limit and y < -limit:
+        elif x < -limit + bias and y < -limit + bias:
+            clusters[3].append(point)
+        elif x > limit + bias and y < -limit + bias:
             clusters[4].append(point)
         else:
             clusters[0].append(point)
@@ -346,18 +347,20 @@ def evaluate(config, workdir):
         run_name = get_run_name(config)
         wandb.init(
             # set the wandb project where this run will be logged
-            project="Corrector Steps",
+            project=config.wandb_project,
             name= run_name,
             # track hyperparameters and run metadata
             config=config
         )
-        print("Sampling")
+        print("Sampling", config.wandb_project)
         relevant_config = create_relevant_config(config)
         x, _, nfe = sampling_fn(score_model)
 
         logging.info('NFE: %d' % nfe)
+        print(torch.sum(torch.isnan(x)))
 
         x = x.cpu().numpy()
+
         stats_x, stats_y, weights = compute_stats_gmm(x)
         combined_stats = {}
         for key, value in stats_x.items():

@@ -2,22 +2,24 @@
 is_image             = false
 data_dim             = 2
 
+# Wandb info
+wandb_project        = Corrector Steps
+
 # Sampling
 sampling_method      = corrector
-sampling_eps         = 5e-3
+sampling_eps         = 1e-2
 denoising            = false
-n_discrete_steps     = 200
+n_discrete_steps     = 25
 
 # Corrector Hyperparameters
 samples_file_name    = 5mm_correct_both
-plot_trajectory      = False # This should only be true for debugging purposes, it uses much memory
+plot_trajectory      = True # This should only be true for debugging purposes, it uses much memory
 
-n_lang_iters         = 20
-h_lang               = .1
+n_lang_iters         = 1
+h_lang               = .1 # Changing this can improve the values outside of distribution problem, the tradeoff is lower accuracy of the corrector
 overdamped_lang      = True
-langevin_friction    = .001
+langevin_friction    = .001 # This only applies to underdamped langevin
 micro_eps            = 1e-5
-eta                  = 1e-3
 predictor_fast_steps = 10
 correct              = both
 

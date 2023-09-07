@@ -138,6 +138,9 @@ if __name__ == '__main__':
 
     p.add('--seed', type=int, default=0)
 
+    # Wandb info
+    p.add('--wandb_project',type=str)
+
     # Data
     p.add('--dataset')
     p.add('--is_image', action='store_true')
