@@ -5,15 +5,18 @@
 # CLD-SGM. To view a copy of this license, see the LICENSE file.
 # ---------------------------------------------------------------
 
+import shutil
 import os
 import time
 import logging
+import plotly
 import torch
 from torch.utils import tensorboard
 import numpy as np
 from torch.nn.parallel import DistributedDataParallel as DDP
 import torch.distributed as dist
 import matplotlib.pyplot as plt
+import plotly.express as px
 from matplotlib import cm
 
 from models import mlp, gmm
@@ -219,6 +222,17 @@ def get_run_name(config):
         file_name+= f"_{config.predictor_fast_steps}_{config.eta : .3f}_lang_{config.n_lang_iters}"
 
     return file_name
+
+def init_wandb(config):
+    run_name = get_run_name(config)
+    wandb.init(
+        # set the wandb project where this run will be logged
+        project=config.wandb_project,
+        name= run_name,
+        # track hyperparameters and run metadata
+        config=config
+    )
+
 def create_relevant_config(config):
     small_config = {
         "sampling_method": config.sampling_method,
@@ -236,9 +250,9 @@ def create_relevant_config(config):
     }
     return small_config
 
-def compute_stats_gmm(data):
+def compute_stats_gmm(data, config):
     limit = 3
-    bias = 7
+    bias = config.mean
     clusters = [ [] for i in range(5)]
     # center, up right, up left , down left, down right
     for point in data:
@@ -266,6 +280,29 @@ def compute_stats_gmm(data):
     
     return stats_x, stats_y, weights
 
+def to_np_array(data):
+    np_data = np.zeros(len(data))
+    for i, (key, value) in enumerate((data.items())):
+        np_data[i] = value
+    
+    return np_data
+
+def summarized_stats(data, config):
+    stats_x, stats_y, weights = compute_stats_gmm(data, config)
+    weights = to_np_array(weights)
+    real_weights = np.array([.2,.2,.2,.2,.2])
+    w = np.sum((weights-real_weights)**2)**.5
+
+    means_x, means_y = np.expand_dims(to_np_array(stats_x),axis=1), np.expand_dims(to_np_array(stats_y),axis=1)
+    m = config.mean
+    b = config.intercept
+    real_means = np.array([[m,m],[m+b,m+b],[m-b,m+b],[m-b, m -b],[m + b,m - b]])
+    means = np.concatenate((means_x,means_y), axis=1)
+    error_means = 0
+    for i, mean in enumerate(real_means):
+        error_means += np.sum((real_means[i]-means[i])**2)**.5
+
+    return w, error_means
 
 
 def evaluate(config, workdir):
@@ -344,32 +381,27 @@ def evaluate(config, workdir):
         dist.barrier()
 
     if config.eval_sample:
-        run_name = get_run_name(config)
-        wandb.init(
-            # set the wandb project where this run will be logged
-            project=config.wandb_project,
-            name= run_name,
-            # track hyperparameters and run metadata
-            config=config
-        )
-        print("Sampling", config.wandb_project)
         relevant_config = create_relevant_config(config)
         x, _, nfe = sampling_fn(score_model)
 
         logging.info('NFE: %d' % nfe)
-        print(torch.sum(torch.isnan(x)))
+        print("Number of nan elements ",torch.sum(torch.isnan(x)))
 
         x = x.cpu().numpy()
 
-        stats_x, stats_y, weights = compute_stats_gmm(x)
+        if config.mode == 'summary':
+            return x
+
+        stats_x, stats_y, weights = compute_stats_gmm(x,config)
         combined_stats = {}
         for key, value in stats_x.items():
             combined_stats[key] = weights[key], stats_x[key], stats_y[key]
-        print(combined_stats)
         stats_df = pd.DataFrame(combined_stats, index=["Weights","Mean x", "Mean y"])
         stats_tbl = wandb.Table(data=stats_df)
         config_df = pd.DataFrame(relevant_config,index=[0])
         config_tbl = wandb.Table(data=config_df)
+        
+        init_wandb(config)
 
         table = wandb.Table(data=x,columns=["x","y"])
         wandb.log({"Generated Samples" : wandb.plot.scatter(table,"x","y")})
@@ -377,3 +409,60 @@ def evaluate(config, workdir):
 
         wandb.finish()
 
+def reset_config(config):
+    config.n_discrete_steps = 40
+    config.n_lang_iters = 5
+
+def summarize(config, workdir):
+    init_wandb(config)
+
+    reset_config(config)
+    # Summarize disc steps
+    summarize_fixed_var(config, workdir, 'number of disc steps', config.n_discrete_steps_range)
+    print("Finished disc steps")
+    reset_config(config)
+
+    # Summarize corrector steps
+    summarize_fixed_var(config, workdir, 'number of corrector steps', config.n_lang_iters_range)
+    print("Finished corrector steps")
+    reset_config(config)
+
+    # Summarize means steps
+    summarize_fixed_var(config, workdir, 'mean of distribution', config.means_range)
+    print("Finished mean")
+
+    wandb.finish()
+    return 0
+
+def summarize_fixed_var(config, workdir, variable, possible_values):
+    weights_stats = []
+    means_stats  = []
+    for val in possible_values:
+        if variable == 'number of disc steps':
+            config.n_discrete_steps = val
+        elif variable == 'number of corrector steps':
+            config.n_lang_iters = val
+        elif variable == 'mean of distribution':
+            config.mean = val
+
+        x = evaluate(config,workdir)
+        weights_error, means_error = summarized_stats(x, config)
+
+        weights_stats.append(weights_error)
+        means_stats.append(means_error)
+
+        shutil.rmtree(os.path.join(workdir,"eval_fid"))
+    
+
+    weights_fig = px.line(x=possible_values, y = weights_stats)
+    title_weights = f"L2 Error in Weights as a function of {variable}"
+    weights_fig.update_layout(title=title_weights,
+                          xaxis_title=f"{variable}",
+                          yaxis_title="Error")
+    means_fig = px.line(x=possible_values, y = means_stats)
+    title_means = f"Sum of L2 Error in Means as a function of {variable}"
+    means_fig.update_layout(title=title_means,
+                          xaxis_title=f"{variable}",
+                          yaxis_title="Error")
+
+    wandb.log({title_weights: weights_fig, title_means: means_fig})

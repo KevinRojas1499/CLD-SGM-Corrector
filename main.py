@@ -110,7 +110,9 @@ def main(config):
             else:
                 import run_lib_toy
                 run_lib_toy.train(config, workdir)
-
+    elif config.mode == 'summary':
+        import run_lib_toy
+        run_lib_toy.summarize(config, workdir)
     else:
         raise ValueError('Mode not recognized.')
 
@@ -123,7 +125,7 @@ if __name__ == '__main__':
     p.add('--root')
     p.add('--workdir', required=True)
     p.add('--eval_folder', default=None)
-    p.add('--mode', choices=['train', 'eval', 'continue'], required=True)
+    p.add('--mode', choices=['train', 'eval', 'continue','summary'], required=True)
     p.add('--cont_nbr', type=int, default=None)
     p.add('--checkpoint', default=None)
 
@@ -140,6 +142,15 @@ if __name__ == '__main__':
 
     # Wandb info
     p.add('--wandb_project',type=str)
+
+    # Summarize Data
+    p.add('--n_discrete_steps_range',type=int, action='append')
+    p.add('--n_lang_iters_range',type=int, action='append')
+    p.add('--means_range',type=int, action='append')
+
+    # GMM Hyper
+    p.add('--mean',type=int)
+    p.add('--intercept',type=int)
 
     # Data
     p.add('--dataset')

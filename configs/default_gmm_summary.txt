@@ -3,18 +3,13 @@ is_image             = false
 data_dim             = 2
 
 # Wandb info
-wandb_project        = Corrector Steps
-
-# GMM parameters
-
-mean = 15
-intercept = 7
+wandb_project        = Summarized Corrector Statistics
 
 # Sampling
 sampling_method      = corrector
 sampling_eps         = 1e-2
 denoising            = false
-n_discrete_steps     = 25
+n_discrete_steps     = 35
 
 # Corrector Hyperparameters
 samples_file_name    = 5mm_correct_both
@@ -27,6 +22,16 @@ langevin_friction    = .001 # This only applies to underdamped langevin
 micro_eps            = 1e-5
 predictor_fast_steps = 10
 correct              = both
+
+# Summarize parameters
+n_discrete_steps_range = [15,25,35, 45]
+n_lang_iters_range     = [1, 2, 3, 4, 5, 6, 7, 8, 10] 
+means_range            = [0,3, 6, 7, 10, 15, 20]
+
+# GMM parameters
+
+mean = 0
+intercept = 7
 
 # Model
 name                = gmm

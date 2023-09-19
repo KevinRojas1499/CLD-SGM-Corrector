@@ -112,7 +112,7 @@ def get_corrector_sampler(config, sde, sampling_shape, sampling_eps):
     langevin_friction = config.langevin_friction
     
     c_hat = 2 * (gamma/(eta * beta)) **.5
-    print(f"CHAT {c_hat}, ETA {eta}")
+    # print(f"CHAT {c_hat}, ETA {eta}")
 
     # Plotting
     counter = 0
@@ -223,11 +223,9 @@ def get_corrector_sampler(config, sde, sampling_shape, sampling_eps):
                     u = x
 
 
-            print("Final time " , t_final)
             effective_step_size = predictor_fast_steps * eta
             # Notice that every predictor steps spans a range of predictor_fast_steps * eta
 
-            print(n_discrete_steps)
             t = torch.linspace(
                 0, t_final,  n_discrete_steps + 1, dtype=torch.float64)
             if config.striding == 'linear':
