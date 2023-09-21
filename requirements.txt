@@ -15,3 +15,5 @@ torchdiffeq
 tfrecord
 matplotlib
 scikit-learn
+plotly
+wandb

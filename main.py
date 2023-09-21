@@ -147,7 +147,7 @@ if __name__ == '__main__':
     p.add('--n_discrete_steps_range',type=int, action='append')
     p.add('--n_lang_iters_range',type=int, action='append')
     p.add('--means_range',type=int, action='append')
-
+    p.add('--skip_predictor', action="store_true", default=False)
     # GMM Hyper
     p.add('--mean',type=int)
     p.add('--intercept',type=int)

@@ -237,7 +237,8 @@ def get_corrector_sampler(config, sde, sampling_shape, sampling_eps):
             plot = config.plot_trajectory
             bar = tqdm(range(n_discrete_steps - 1))
             for i in bar:
-                u = discrete_steps(u, t, effective_step_size)
+                if not config.skip_predictor:
+                    u = discrete_steps(u, t, effective_step_size)
                 # u, _ = step_fn(model, u, t[i], dt)
                 if plot:
                     make_image(u,color='blue',name=f"{i}_{t:.3f}.png")

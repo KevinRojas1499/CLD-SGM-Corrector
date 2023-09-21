@@ -17,6 +17,8 @@ from torch.nn.parallel import DistributedDataParallel as DDP
 import torch.distributed as dist
 import matplotlib.pyplot as plt
 import plotly.express as px
+import plotly.graph_objects as go
+
 from matplotlib import cm
 
 from models import mlp, gmm
@@ -412,6 +414,9 @@ def evaluate(config, workdir):
 def reset_config(config):
     config.n_discrete_steps = 40
     config.n_lang_iters = 5
+    config.skip_predictor = False
+    config.sampling_method = 'corrector'
+
 
 def summarize(config, workdir):
     init_wandb(config)
@@ -422,14 +427,14 @@ def summarize(config, workdir):
     print("Finished disc steps")
     reset_config(config)
 
-    # Summarize corrector steps
-    summarize_fixed_var(config, workdir, 'number of corrector steps', config.n_lang_iters_range)
-    print("Finished corrector steps")
-    reset_config(config)
+    # # Summarize corrector steps
+    # summarize_fixed_var(config, workdir, 'number of corrector steps', config.n_lang_iters_range)
+    # print("Finished corrector steps")
+    # reset_config(config)
 
-    # Summarize means steps
-    summarize_fixed_var(config, workdir, 'mean of distribution', config.means_range)
-    print("Finished mean")
+    # # Summarize means steps
+    # summarize_fixed_var(config, workdir, 'mean of distribution', config.means_range)
+    # print("Finished mean")
 
     wandb.finish()
     return 0
@@ -437,14 +442,19 @@ def summarize(config, workdir):
 def summarize_fixed_var(config, workdir, variable, possible_values):
     weights_stats = []
     means_stats  = []
+    weights_stats_no_pred = []
+    means_stats_no_pred  = []
+    weights_stats_em = []
+    means_stats_em  = []
     for val in possible_values:
+        reset_config(config)
+
         if variable == 'number of disc steps':
             config.n_discrete_steps = val
         elif variable == 'number of corrector steps':
             config.n_lang_iters = val
         elif variable == 'mean of distribution':
             config.mean = val
-
         x = evaluate(config,workdir)
         weights_error, means_error = summarized_stats(x, config)
 
@@ -452,14 +462,46 @@ def summarize_fixed_var(config, workdir, variable, possible_values):
         means_stats.append(means_error)
 
         shutil.rmtree(os.path.join(workdir,"eval_fid"))
-    
 
-    weights_fig = px.line(x=possible_values, y = weights_stats)
+        config.skip_predictor = True
+
+        x = evaluate(config,workdir)
+        weights_error, means_error = summarized_stats(x, config)
+
+        weights_stats_no_pred.append(weights_error)
+        means_stats_no_pred.append(means_error)
+
+        shutil.rmtree(os.path.join(workdir,"eval_fid"))
+
+        if variable == 'number of disc steps':
+            config.skip_predictor = False
+            config.sampling_method = 'em'
+            config.n_discrete_steps = val * config.n_lang_iters
+
+            x = evaluate(config,workdir)
+            weights_error, means_error = summarized_stats(x, config)
+
+            weights_stats_em.append(weights_error)
+            means_stats_em.append(means_error)
+
+            shutil.rmtree(os.path.join(workdir,"eval_fid"))
+    
+    weights_fig = go.Figure()
+    weights_fig.add_trace(go.Scatter(x=possible_values, y = weights_stats, name="Predictor"))
+    weights_fig.add_trace(go.Scatter(x=possible_values, y = weights_stats_no_pred, name="No Predictor"))
+    if variable == 'number of disc steps':
+        weights_fig.add_trace(go.Scatter(x=possible_values, y = weights_stats_em, name="Euler Maruyama"))
+
     title_weights = f"L2 Error in Weights as a function of {variable}"
     weights_fig.update_layout(title=title_weights,
                           xaxis_title=f"{variable}",
                           yaxis_title="Error")
-    means_fig = px.line(x=possible_values, y = means_stats)
+    means_fig = go.Figure()
+    means_fig.add_trace(go.Scatter(x=possible_values, y = means_stats, name="Predictor"))
+    means_fig.add_trace(go.Scatter(x=possible_values, y = means_stats_no_pred, name="No Predictor"))
+    if variable == 'number of disc steps':
+        means_fig.add_trace(go.Scatter(x=possible_values, y = means_stats_em, name="Euler - Maruyama"))
+
     title_means = f"Sum of L2 Error in Means as a function of {variable}"
     means_fig.update_layout(title=title_means,
                           xaxis_title=f"{variable}",
