@@ -1,0 +1,38 @@
+---------------------------------------
+Begin Slurm Prolog: Oct-16-2023 16:43:27
+Job ID:    3799477
+User ID:   krojas6
+Account:   gts-mtao8
+Job name:  CLD
+Partition: gpu-a100
+QOS:       inferno
+---------------------------------------
+Node rank 0, local proc 0, global proc 0
+slurmstepd: error: *** JOB 3799477 ON atl1-1-02-018-31-0 CANCELLED AT 2023-10-16T17:47:00 ***
+---------------------------------------
+Begin Slurm Epilog: Oct-16-2023 17:47:02
+Job ID:        3799477
+Array Job ID:  _4294967294
+User ID:       krojas6
+Account:       gts-mtao8
+Job name:      CLD
+Resources:     cpu=32,gres/gpu:a100=1,mem=128G,node=1
+Rsrc Used:     cput=1-09:53:36,vmem=1185456K,walltime=01:03:33,mem=378740K,energy_used=0
+Partition:     gpu-a100
+QOS:           inferno
+Nodes:         atl1-1-02-018-31-0
+---------------------------------------
+slurmstepd: error: *** JOB 3797696 ON atl1-1-02-018-33-0 CANCELLED AT 2023-10-16T17:47:23 ***
+---------------------------------------
+Begin Slurm Epilog: Oct-16-2023 17:47:25
+Job ID:        3797696
+Array Job ID:  _4294967294
+User ID:       krojas6
+Account:       gts-mtao8
+Job name:      CLD
+Resources:     cpu=32,gres/gpu:a100=1,mem=128G,node=1
+Rsrc Used:     cput=5-10:41:36,vmem=1388040K,walltime=04:05:03,mem=379056K,energy_used=0
+Partition:     gpu-a100
+QOS:           inferno
+Nodes:         atl1-1-02-018-33-0
+---------------------------------------

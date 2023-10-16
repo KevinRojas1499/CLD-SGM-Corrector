@@ -208,6 +208,7 @@ if __name__ == '__main__':
     p.add('--dropout', type=float)
     p.add('--mixed_score', action='store_true')
     p.add('--embedding_type', choices=['fourier', 'positional'])
+    p.add('--same_channels', action='store_true')
 
     # Training
     p.add('--training_batch_size', type=int)

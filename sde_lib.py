@@ -59,11 +59,9 @@ class CLD(nn.Module):
 
             drift_x, drift_v = torch.chunk(drift, 2, dim=1)
             _, diffusion_v = torch.chunk(diffusion, 2, dim=1)
-
-            if score.shape[-1] != drift_x.shape[-1]:
+            if score.shape[1] != drift_x.shape[1]:
                 _, scorev = torch.chunk(score, 2, dim = 1)
                 score = scorev
-
             reverse_drift_x = -drift_x
             reverse_drift_v = -drift_v + diffusion_v ** 2. * \
                 score * (0.5 if probability_flow else 1.)
@@ -209,7 +207,6 @@ class CLD(nn.Module):
             vec_t = torch.ones(
                 u.shape[0], device=u.device, dtype=torch.float64) * t
             drift, diffusion = sde_fn(u, vec_t)
-
             drift *= dt
             diffusion *= np.sqrt(dt)
 

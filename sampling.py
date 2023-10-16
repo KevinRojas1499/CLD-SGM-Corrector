@@ -140,14 +140,6 @@ def get_corrector_sampler(config, sde, sampling_shape, sampling_eps):
         u, u_mean = discrete_step_fn(u, t, dt)
         return u, u_mean
 
-    def get_edm_discretization(num, device):
-                rho=7
-                sigma_min = 0.002
-                step_indices = torch.arange(num, dtype=torch.float64, device=device)
-                t_steps = (1 ** (1 / rho) + step_indices / (num - 1) * (sigma_min ** (1 / rho) - 1 ** (1 / rho))) ** rho
-                t_steps = torch.cat([t_steps, torch.zeros_like(t_steps[:1])]) # t_N = 0
-                return t_steps
-
     def gradV(x):
         f1 = lambda x : torch.sin(x)
         return x + c_hat *  f1(x/eps)
