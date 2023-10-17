@@ -54,12 +54,13 @@ def make_image(u,t, config, color='blue',name=None,score=None,sde=None):
         # print(torch.sum(torch.isnan(x)))
     else:
         nsamples = 1000
-        l = 6
+        bins = 600
+        l = 10
         plt.xlim(-l,l)
         plt.ylim(-l,l)
         real_score = get_score(config,sde)
-        space = np.linspace(-l,l,num=500)
-        speed = np.linspace(-l,l,num=500)
+        space = np.linspace(-l,l,num=bins)
+        speed = np.linspace(-l,l,num=bins)
         grid_x, grid_y  = np.meshgrid(space,speed)
         grid_xt =torch.tensor(grid_x).unsqueeze(-1)
         grid_yt = torch.tensor(grid_y).unsqueeze(-1)

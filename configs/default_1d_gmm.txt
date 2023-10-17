@@ -20,22 +20,22 @@ save_freq            = 50000
 save_threshold       = 300000
 
 # Sampling
-sampling_method      = em
+sampling_method      = corrector
 sampling_eps         = 5e-3
 denoising            = false
-n_discrete_steps     = 100
-ckpt_file            = final_checkpoint.pth
+n_discrete_steps     = 25
+ckpt_file            = snapshot_checkpoint.pth
 
 samples_file_name    = swiss
 
-plot_trajectory      = False # This should only be true for debugging purposes, it uses much memory
+plot_trajectory      = True # This should only be true for debugging purposes, it uses much memory
 
 
 # Corrector Hyperparameters
 samples_file_name    = 5mm_correct_both
 plot_trajectory      = True # This should only be true for debugging purposes, it uses much memory
 
-n_lang_iters         = 5
+n_lang_iters         = 2
 h_lang               = .1
 overdamped_lang      = True
 micro_eps            = 1e-5
