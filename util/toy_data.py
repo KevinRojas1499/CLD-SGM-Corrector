@@ -8,7 +8,7 @@
 import torch
 import numpy as np
 from sklearn.datasets import make_swiss_roll
-
+import yaml
 
 def inf_data_gen(dataset, batch_size):
     if dataset == 'multimodal_swissroll':
@@ -45,7 +45,15 @@ def inf_data_gen(dataset, batch_size):
         noise = np.random.randn(batch_size, 2)
         data = means[index] + noise @ covariance_factor
         return torch.from_numpy(data.astype('float32'))
-
+    elif dataset == 'gmm':
+        params = yaml.safe_load(open('./configs/gmm_config.yaml'))
+        c = np.array(params['coeffs'])
+        means = np.array(params['means-simple'])
+        var = np.array(params['variances-simple'])
+        noise = np.random.randn(batch_size)
+        idx = np.random.randint(0,len(c),batch_size)
+        samples = means[idx] + noise * var[idx]**.5
+        return torch.from_numpy(samples.astype('float32')).unsqueeze(-1)
     else:
         raise NotImplementedError(
             'Toy dataset %s is not implemented.' % dataset)
