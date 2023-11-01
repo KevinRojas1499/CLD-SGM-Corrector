@@ -45,6 +45,13 @@ def get_loaders_eval(dataset, root, distributed, training_batch_size, testing_ba
             root=root, train=True, download=True, transform=train_transform)
         valid_data = dset.CIFAR10(
             root=root, train=False, download=True, transform=valid_transform)
+    elif dataset == 'mnist':
+        num_classes = 10
+        train_transform, valid_transform = _data_transforms_mnist()
+        train_data = dset.MNIST(
+            root=root,train=True, download=True, transform=train_transform)
+        valid_data = dset.MNIST(
+            root=root,train=False, download=True, transform=train_transform)
     elif dataset.startswith('celeba'):
         if dataset == 'celeba_64':
             resize = 64
@@ -188,6 +195,21 @@ def _data_transforms_cifar10():
 
     valid_transform = transforms.Compose([
         transforms.ToTensor()
+    ])
+
+    return train_transform, valid_transform
+
+def _data_transforms_mnist():
+    """Get data transforms for mnist."""
+
+    train_transform = transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Resize((32,32))
+    ])
+
+    valid_transform = transforms.Compose([
+        transforms.ToTensor(),
+        transforms.Resize((32,32))
     ])
 
     return train_transform, valid_transform

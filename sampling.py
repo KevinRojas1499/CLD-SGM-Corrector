@@ -10,6 +10,72 @@ import gc
 from torchdiffeq import odeint
 from models.utils import get_score_fn
 from tqdm import tqdm
+from util.gmmscore import get_score
+
+counter = 0
+def make_image(u,t, config, color='blue',name=None,score=None,sde=None):
+    import matplotlib.pyplot as plt
+    import os
+    import numpy as np
+    import PIL
+    global counter
+    file_name= f"{counter}.png" if name == None else name
+    path = os.path.join("./root/trajectory/", file_name)
+    path_speed = os.path.join("./root/trajectory_speed/", file_name)
+
+    counter+=1
+    if config.is_image:
+
+        im = u[0,0] 
+        im = np.clip(im.permute(1, 2, 0).cpu().numpy()
+                            * 255., 0, 255).astype(np.uint8)
+        print(im.shape)
+        im = im.reshape(
+            (config.image_size, config.image_size, config.image_channels))
+        print(im.shape)
+        if im.shape[2] == 1:
+            PIL.Image.fromarray(im[:, :, 0], 'L').save(path)
+        else:
+            PIL.Image.fromarray(im, 'RGB').save(path)
+    elif config.data_dim == 2:
+        l = 3
+        bias = 0
+        plt.xlim(-l + bias,l + bias)
+        plt.ylim(-l + bias,l + bias)
+        x, v = torch.chunk( u , 2, dim = 1)
+        plt.scatter(x.cpu().numpy()[:, 0], x.cpu().numpy()[:, 1], color=color, s=3)
+        plt.savefig(path)
+        plt.close()
+        plt.xlim(-l + bias,l + bias)
+        plt.ylim(-l + bias,l + bias)
+        plt.scatter(v.cpu().numpy()[:, 0], v.cpu().numpy()[:, 1], color=color, s=3)
+        plt.savefig(path_speed)
+        plt.close()
+        # print(torch.sum(torch.isnan(x)))
+    else:
+        nsamples = 1000
+        bins = 600
+        l = 10
+        plt.xlim(-l,l)
+        plt.ylim(-l,l)
+        real_score = get_score(config,sde)
+        space = np.linspace(-l,l,num=bins)
+        speed = np.linspace(-l,l,num=bins)
+        grid_x, grid_y  = np.meshgrid(space,speed)
+        grid_xt =torch.tensor(grid_x).unsqueeze(-1)
+        grid_yt = torch.tensor(grid_y).unsqueeze(-1)
+        grid_tensor = torch.cat((grid_xt,grid_yt),dim=-1)
+        grid_tensor = grid_tensor.to('cuda').view((-1,2))
+        shape_t = torch.ones(grid_tensor.shape[0],device='cuda') * t
+        est_score = score(grid_tensor,shape_t)
+        true_score = real_score(grid_tensor,shape_t)
+        diff = torch.sum((true_score - est_score)**2,dim=1).view_as(grid_xt) \
+            .squeeze(-1).detach().cpu().numpy()
+        plt.contourf(grid_x,grid_y, diff)
+        plt.scatter(u[:nsamples,0].cpu().numpy(),u[:nsamples,1].cpu().numpy(), color=color)
+        plt.colorbar()
+        plt.savefig(path)
+        plt.close()
 
 def get_sampling_fn(config, sde, sampling_shape, eps):
     sampler_name = config.sampling_method
@@ -114,39 +180,12 @@ def get_corrector_sampler(config, sde, sampling_shape, sampling_eps):
     c_hat = 2 * (gamma/(eta * beta)) **.5
     # print(f"CHAT {c_hat}, ETA {eta}")
 
-    # Plotting
-    counter = 0
-
-    def make_image(u, color='blue',name=None):
-        import matplotlib.pyplot as plt
-        import os
-        nonlocal counter
-        file_name= f"{counter}.png" if name == None else name
-        counter+=1
-        l = 13
-        bias = 7
-        plt.xlim(-l + bias,l + bias)
-        plt.ylim(-l + bias,l + bias)
-        x, _ = torch.chunk( u , 2, dim = 1)
-        plt.scatter(x.cpu().numpy()[:, 0], x.cpu().numpy()[:, 1], color=color, s=3)
-        plt.savefig(os.path.join("./root/trajectory/", file_name))
-        plt.close()
-        # print(torch.sum(torch.isnan(x)))
-
     def step_fn(model, u, t, dt):
         score_fn = get_score_fn(config, sde, model, train=False)
         discrete_step_fn = sde.get_discrete_step_fn(
             mode='reverse', score_fn=score_fn)
         u, u_mean = discrete_step_fn(u, t, dt)
         return u, u_mean
-
-    def get_edm_discretization(num, device):
-                rho=7
-                sigma_min = 0.002
-                step_indices = torch.arange(num, dtype=torch.float64, device=device)
-                t_steps = (1 ** (1 / rho) + step_indices / (num - 1) * (sigma_min ** (1 / rho) - 1 ** (1 / rho))) ** rho
-                t_steps = torch.cat([t_steps, torch.zeros_like(t_steps[:1])]) # t_N = 0
-                return t_steps
 
     def gradV(x):
         f1 = lambda x : torch.sin(x)
@@ -191,13 +230,13 @@ def get_corrector_sampler(config, sde, sampling_shape, sampling_eps):
             if score.shape[-1] == v.shape[-1]:
                 sv = score
             if config.correct == 'both':
-                x = overdamped_langevin_iter(x,h_lang,sx)
-                v = overdamped_langevin_iter(v,h_lang,sv)
+                u = overdamped_langevin_iter(u,h_lang, score)
             elif config.correct == 'speed':
                 v = overdamped_langevin_iter(v,h_lang,sv)
             else:
                 x = overdamped_langevin_iter(x,h_lang,sx)
-            u = torch.cat((x,v), dim=1)
+            if config.correct != 'both':
+                u = torch.cat((x,v), dim=1)
         return u
 
     def underdamped_langevin_corrector(model, u, t):
@@ -222,6 +261,7 @@ def get_corrector_sampler(config, sde, sampling_shape, sampling_eps):
                 else:
                     u = x
 
+            score_fn = get_score_fn(config, sde, model, train=False)
 
             effective_step_size = predictor_fast_steps * eta
             # Notice that every predictor steps spans a range of predictor_fast_steps * eta
@@ -241,7 +281,7 @@ def get_corrector_sampler(config, sde, sampling_shape, sampling_eps):
                     u = discrete_steps(u, t, effective_step_size)
                 # u, _ = step_fn(model, u, t[i], dt)
                 if plot:
-                    make_image(u,color='blue',name=f"{i}_{t:.3f}.png")
+                    make_image(u,t,config, color='blue',name=f"{i}_{t:.3f}.png",score=score_fn,sde=sde)
 
                 t+=effective_step_size
                 bar.set_description(f"T : {t : .3f}")
@@ -250,7 +290,7 @@ def get_corrector_sampler(config, sde, sampling_shape, sampling_eps):
                 else:
                     u = underdamped_langevin_corrector(model, u, t)
                 if plot:
-                    make_image(u,color='red',name=f"{i}_{t:.3f}.png")
+                    make_image(u,t,config, color='red',name=f"{i}_{t:.3f}.png",score=score_fn,sde=sde)
 
             u, _ = step_fn(model, u, t, t_final - t)
 
@@ -287,6 +327,7 @@ def get_em_sampler(config, sde, sampling_shape, eps):
                     u = torch.cat((x, v), dim=1)
                 else:
                     u = x
+            score_fn = get_score_fn(config, sde, model, train=False)
 
             n_discrete_steps = config.n_discrete_steps if not config.denoising else config.n_discrete_steps - 1
             t_final = 1. - eps
@@ -300,6 +341,8 @@ def get_em_sampler(config, sde, sampling_shape, eps):
             for i in range(n_discrete_steps):
                 dt = t[i + 1] - t[i]
                 u, _ = step_fn(model, u, t[i], dt)
+                if config.plot_trajectory:
+                    make_image(u, t[i],config, color='red',name=f"{i}_{t[i]:.3f}.png",score=score_fn,sde=sde)
 
             if config.denoising:
                 _, u = step_fn(model, u, 1. - eps, eps)

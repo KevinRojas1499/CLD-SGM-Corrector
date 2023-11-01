@@ -172,11 +172,16 @@ def train(config, workdir):
             this_sample_dir = os.path.join(sample_dir, 'iter_%d' % step)
             make_dir(this_sample_dir)
 
-            plt.scatter(x.cpu().numpy()[:, 0], x.cpu().numpy()[:, 1], s=3)
-            plt.savefig(os.path.join(this_sample_dir,
-                        'sample_rank_%d.png' % global_rank))
-            plt.close()
-
+            if config.data_dim == 2:
+                plt.scatter(x.cpu().numpy()[:, 0], x.cpu().numpy()[:, 1], s=3)
+                plt.savefig(os.path.join(this_sample_dir,
+                            'sample_rank_%d.png' % global_rank))
+                plt.close()
+            elif config.data_dim == 1:
+                plt.hist(x.cpu().numpy(),200)
+                plt.savefig(os.path.join(this_sample_dir,
+                            'sample_rank_%d.png' % global_rank))
+                plt.close()
             if config.sde == 'cld':
                 np.save(os.path.join(this_sample_dir, 'sample_x'), x.cpu())
                 np.save(os.path.join(this_sample_dir, 'sample_v'), v.cpu())
@@ -394,21 +399,27 @@ def evaluate(config, workdir):
         if config.mode == 'summary':
             return x
 
-        stats_x, stats_y, weights = compute_stats_gmm(x,config)
-        combined_stats = {}
-        for key, value in stats_x.items():
-            combined_stats[key] = weights[key], stats_x[key], stats_y[key]
-        stats_df = pd.DataFrame(combined_stats, index=["Weights","Mean x", "Mean y"])
-        stats_tbl = wandb.Table(data=stats_df)
-        config_df = pd.DataFrame(relevant_config,index=[0])
-        config_tbl = wandb.Table(data=config_df)
-        
         init_wandb(config)
-
-        table = wandb.Table(data=x,columns=["x","y"])
-        wandb.log({"Generated Samples" : wandb.plot.scatter(table,"x","y")})
-        wandb.log({"Summary statistics " : stats_tbl, "Config" : config_tbl})
-
+        if config.name == 'gmm':
+            stats_x, stats_y, weights = compute_stats_gmm(x,config)
+            combined_stats = {}
+            for key, value in stats_x.items():
+                combined_stats[key] = weights[key], stats_x[key], stats_y[key]
+            stats_df = pd.DataFrame(combined_stats, index=["Weights","Mean x", "Mean y"])
+            stats_tbl = wandb.Table(data=stats_df)
+            config_df = pd.DataFrame(relevant_config,index=[0])
+            config_tbl = wandb.Table(data=config_df)
+            wandb.log({"Summary statistics " : stats_tbl, "Config" : config_tbl})
+        
+        if config.data_dim == 2:
+            table = wandb.Table(data=x,columns=["x","y"])
+            wandb.log({"Generated Samples" : wandb.plot.scatter(table,"x","y")})
+        else:
+            x = np.squeeze(x)
+            plt.hist(x, 200, density=True)
+            plt.savefig('./root/1dgmm/')
+            print(np.sum(x > 3))
+            wandb.log({"Generated Samples": plt})
         wandb.finish()
 
 def reset_config(config):

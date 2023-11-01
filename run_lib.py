@@ -9,6 +9,7 @@ import os
 import glob
 import logging
 import time
+import PIL
 import torch
 from torch.utils import tensorboard
 import numpy as np
@@ -475,6 +476,19 @@ def evaluate(config, workdir):
                 samples_dir, 'samples_%d_%d.pth' % (r, global_rank)))
             np.save(os.path.join(samples_dir, 'nfes_%d_%d.npy' %
                     (r, global_rank)), np.array([nfe]))
+            
+            samples = np.clip(x.permute(0, 2, 3, 1).cpu().numpy()
+                              * 255., 0, 255).astype(np.uint8)
+            samples = samples.reshape(
+                (-1, config.image_size, config.image_size, config.image_channels))
+
+            for idx, im in enumerate(samples):
+                if im.shape[2] == 1:
+                    PIL.Image.fromarray(im[:, :, 0], 'L').save(os.path.join(fid_dir, f"sample_{idx}.png"))
+                else:
+                    PIL.Image.fromarray(im, 'RGB').save(os.path.join(fid_dir, f"sample_{idx}.png"))
+
+
 
         dist.barrier()
 

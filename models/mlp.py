@@ -21,7 +21,7 @@ class MLP(nn.Module):
         super().__init__()
 
         act = nn.SiLU()
-
+        input_dim = config.data_dim
         self.x_input = True
         self.v_input = True if config.sde == 'cld' else False
 

@@ -18,9 +18,9 @@ n_discrete_steps     = 45
 
 # Corrector Hyperparameters
 samples_file_name    = 5mm_correct_both
-plot_trajectory      = True # This should only be true for debugging purposes, it uses much memory
+plot_trajectory      = False # This should only be true for debugging purposes, it uses much memory
 
-n_lang_iters         = 5
+n_lang_iters         = 3
 h_lang               = .1 # Changing this can improve the values outside of distribution problem, the tradeoff is lower accuracy of the corrector
 overdamped_lang      = True
 langevin_friction    = .001 # This only applies to underdamped langevin

@@ -230,8 +230,9 @@ class NCSNpp(nn.Module):
         if self.progressive != 'output_skip':
             modules.append(nn.GroupNorm(num_groups=min(
                 in_ch // 4, 32), num_channels=in_ch, eps=1e-6))
+            out_channels = 2 * config.image_channels if config.same_channels == True else config.image_channels
             modules.append(
-                conv3x3(in_ch, config.image_channels, init_scale=init_scale))
+                conv3x3(in_ch, out_channels, init_scale=init_scale))
 
         self.all_modules = nn.ModuleList(modules)
 
