@@ -423,10 +423,7 @@ def evaluate(config, workdir):
         wandb.finish()
 
 def reset_config(config):
-    config.n_discrete_steps = 40
-    config.n_lang_iters = 5
-    config.skip_predictor = False
-    config.sampling_method = 'corrector'
+    config.sampling_method = 'predictor'
 
 
 def summarize(config, workdir):
@@ -434,19 +431,7 @@ def summarize(config, workdir):
 
     reset_config(config)
     # Summarize disc steps
-    summarize_fixed_var(config, workdir, 'number of disc steps', config.n_discrete_steps_range)
-    print("Finished disc steps")
-    reset_config(config)
-
-    # # Summarize corrector steps
-    # summarize_fixed_var(config, workdir, 'number of corrector steps', config.n_lang_iters_range)
-    # print("Finished corrector steps")
-    # reset_config(config)
-
-    # # Summarize means steps
-    # summarize_fixed_var(config, workdir, 'mean of distribution', config.means_range)
-    # print("Finished mean")
-
+    summarize_predictor_steps_impact(config, workdir)
     wandb.finish()
     return 0
 
@@ -519,3 +504,35 @@ def summarize_fixed_var(config, workdir, variable, possible_values):
                           yaxis_title="Error")
 
     wandb.log({title_weights: weights_fig, title_means: means_fig})
+    
+    
+def summarize_predictor_steps_impact(config,workdir):
+    weights_stats = []
+    means_stats  = []
+    num_steps = config.n_discrete_steps
+    baseline_means, baseline_weights = 0, 0
+    values = np.arange(num_steps)
+    ones = np.ones_like(values)
+    for i in range(-1, num_steps):
+        config.set_of_predictor_steps = [i]
+        x = evaluate(config,workdir)
+        weights_error, means_error = summarized_stats(x, config)
+        
+        if i >= 0:
+            weights_stats.append(weights_error)
+            means_stats.append(means_error)
+        else:
+            baseline_weights = weights_error
+            baseline_means = means_error
+        shutil.rmtree(os.path.join(workdir,"eval_fid"))
+    
+    weights_fig = go.Figure()
+    weights_fig.add_trace(go.Scatter(x=values, y = weights_stats, name="Predictor"))
+    weights_fig.add_trace(go.Scatter(x=values, y = ones * baseline_weights, name="Baseline"))
+    
+    means_fig = go.Figure()
+    means_fig.add_trace(go.Scatter(x=values, y = means_stats, name="Predictor"))
+    means_fig.add_trace(go.Scatter(x=values, y = ones * baseline_means, name="Baseline"))
+    
+    wandb.log({"Weights Error": weights_fig, "Means Error": means_fig})
+    

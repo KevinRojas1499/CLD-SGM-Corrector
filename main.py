@@ -233,7 +233,7 @@ if __name__ == '__main__':
     p.add('--save_threshold', type=int, default=1)
 
     # Sampling
-    p.add('--sampling_method', choices=['ode', 'em', 'sscs','corrector'], default='ode')
+    p.add('--sampling_method', choices=['ode', 'em', 'sscs','corrector','predictor'], default='ode')
     p.add('--sampling_solver', default='scipy_solver')
     p.add('--sampling_solver_options',
           type=json.loads, default={'solver': 'RK45'})
@@ -261,6 +261,7 @@ if __name__ == '__main__':
     p.add('--micro_eps',type=float, default=1e-5)
     p.add('--eta',type=float, default=1e-3)
     p.add('--predictor_fast_steps',type=int, default=5) # This is we take fast_steps of size eta and then we apply the corrector steps
+    p.add('--set_of_predictor_steps',action='append',default=[]) # The set of steps where we will use the predictor steps
     
     # Likelihood
     p.add('--likelihood_solver', default='scipy_solver')

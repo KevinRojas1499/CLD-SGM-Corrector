@@ -3,7 +3,7 @@ is_image             = false
 data_dim             = 2
 
 # Wandb info
-wandb_project        = Corrector Steps
+wandb_project        = Predictor Analysis
 
 # GMM parameters
 
@@ -11,10 +11,10 @@ mean = 0
 intercept = 7
 
 # Sampling
-sampling_method      = corrector
+sampling_method      = sscs
 sampling_eps         = 1e-2
 denoising            = false
-n_discrete_steps     = 45
+n_discrete_steps     = 50
 
 # Corrector Hyperparameters
 samples_file_name    = 5mm_correct_both

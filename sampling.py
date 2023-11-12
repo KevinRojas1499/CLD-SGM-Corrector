@@ -87,6 +87,8 @@ def get_sampling_fn(config, sde, sampling_shape, eps):
         return get_sscs_sampler(config, sde, sampling_shape, eps)
     elif sampler_name == 'corrector':
         return get_corrector_sampler(config,sde, sampling_shape, eps)
+    elif sampler_name == 'predictor':
+        return get_predictor_sampler(config,sde,sampling_shape,eps)
     else:
         raise NotImplementedError(
             'Sampler %s is not implemened.' % sampler_name)
@@ -356,31 +358,104 @@ def get_em_sampler(config, sde, sampling_shape, eps):
     return em_sampler
 
 
-def get_sscs_sampler(config, sde, sampling_shape, eps):
+def get_predictor_sampler(config, sde, sampling_shape, sampling_eps):
+
+    gc.collect()
+
+    t_final = 1. - sampling_eps
+    n_discrete_steps = config.n_discrete_steps
+
+    beta = sde.beta_fn(0)
+    m_inv = sde.m_inv
+    gamma = 2/m_inv**.5
+    # Discrete stuff
+    eps = config.micro_eps
+    predictor_fast_steps = config.predictor_fast_steps
+    step_size =  t_final/n_discrete_steps
+    eta = step_size/predictor_fast_steps
+
+    c_hat = 2 * (gamma/(eta * beta)) **.5
+    # print(f"CHAT {c_hat}, ETA {eta}")
+
+    def step_fn(model, u, t, dt):
+        score_fn = get_score_fn(config, sde, model, train=False)
+        discrete_step_fn = sde.get_discrete_step_fn(
+            mode='reverse', score_fn=score_fn)
+        u, u_mean = discrete_step_fn(u, t, dt)
+        return u, u_mean
+
+    def gradV(x):
+        f1 = lambda x : torch.sin(x)
+        return x + c_hat *  f1(x/eps)
+        
+    def fast_discrete_step_fn(u,t,dt):
+        beta = sde.beta_fn(t)
+        x,v = torch.chunk(u, 2, dim=1)
+        dt = -dt
+        v = (v + beta * gradV(x) * dt)/(1-4 / gamma  * beta * dt)
+        x = x - 4/gamma**2 * beta * v * dt
+        return torch.cat((x,v), dim=1)
+
+
+    def discrete_steps(u, t , dt):
+        t = torch.linspace(t + dt, t, predictor_fast_steps + 1, dtype=torch.float64)
+        for i in range(predictor_fast_steps):
+            dt = t[i+1]- t[i]
+            u = fast_discrete_step_fn(u,t[i],dt)
+        return u
+
+    def predictor_sampler(model, u=None):
+        plot = config.plot_trajectory
+        with torch.no_grad():
+            if u is None:
+                x, v = sde.prior_sampling(sampling_shape)
+                if sde.is_augmented:
+                    u = torch.cat((x, v), dim=1)
+                else:
+                    u = x
+
+            score_fn = get_score_fn(config, sde, model, train=False)
+            t = torch.linspace(
+                0, t_final,  n_discrete_steps + 1, dtype=torch.float64)
+            if config.striding == 'linear':
+                pass
+            elif config.striding == 'quadratic':
+                t = t_final * torch.flip(1 - (t / t_final) ** 2., dims=[0])
+
+            plot = config.plot_trajectory
+            bar = tqdm(range(n_discrete_steps+1))
+            predictor_steps = config.set_of_predictor_steps
+            for i in bar:
+                if i in predictor_steps:
+                    u = discrete_steps(u, t[i], step_size)
+                else:
+                    u, _ = step_fn(model, u, t[i], step_size)
+                if plot:
+                    make_image(u,t,config, color='blue',name=f"{i}_{t:.3f}.png",score=score_fn,sde=sde)
+                bar.set_description(f"T : {t[i] : .3f}")
+
+            if config.denoising:
+                _, u = step_fn(model, u, 1. - eps, eps)
+
+            if sde.is_augmented:
+                x, v = torch.chunk(u, 2, dim=1)
+                return x, v, config.n_discrete_steps
+            else:
+                return u, None, config.n_discrete_steps
+    
+    return predictor_sampler
+
+
+def get_sscs_step_fn(config, sde):
     ''' 
     Sampling from the ReverseSDE using our SSCS. Only applicable to CLD-SGM.
     '''
 
     gc.collect()
-
-    n_discrete_steps = config.n_discrete_steps if not config.denoising else config.n_discrete_steps - 1
-    t_final = 1. - eps
-    t = torch.linspace(0., t_final, n_discrete_steps + 1, dtype=torch.float64)
-    if config.striding == 'linear':
-        pass
-    elif config.striding == 'quadratic':
-        t = t_final * torch.flip(1 - (t / t_final) ** 2., dims=[0])
-
+    
     beta_fn = sde.beta_fn
     beta_int_fn = sde.beta_int_fn
     num_stab = config.sscs_num_stab
-
-    def denoising_fn(model, u, t):
-        score_fn = get_score_fn(config, sde, model, train=False)
-        discrete_step_fn = sde.get_discrete_step_fn(
-            mode='reverse', score_fn=score_fn)
-        u, u_mean = discrete_step_fn(u, t, eps)
-        return u_mean
 
     def compute_mean_of_analytical_dynamics(u, t, dt):
         B = (beta_int_fn(1. - (t + dt)) - beta_int_fn(1. - t))
@@ -444,6 +519,46 @@ def get_sscs_sampler(config, sde, sampling_shape, eps):
 
         return torch.cat((x, v_new), dim=1)
 
+    def sscs_step_fn(model, u, t, dt):
+        ''' 
+        The SSCS sampler takes analytical "half-steps" for the Ornstein--Uhlenbeck
+        and the Hamiltonian components, and evaluates the score model using "full-steps". 
+        '''
+        u = analytical_dynamics(u, t, dt, True)
+        u = euler_score_dynamics(model, u, t, dt, False)
+        u = analytical_dynamics(u, t, dt, True)
+
+        return u
+
+    return sscs_step_fn
+
+
+def get_sscs_sampler(config, sde, sampling_shape, eps):
+    ''' 
+    Sampling from the ReverseSDE using our SSCS. Only applicable to CLD-SGM.
+    '''
+
+    gc.collect()
+    
+    def denoising_fn(model, u, t):
+        score_fn = get_score_fn(config, sde, model, train=False)
+        discrete_step_fn = sde.get_discrete_step_fn(
+            mode='reverse', score_fn=score_fn)
+        u, u_mean = discrete_step_fn(u, t, eps)
+        return u_mean
+
+    
+    n_discrete_steps = config.n_discrete_steps if not config.denoising else config.n_discrete_steps - 1
+    t_final = 1. - eps
+    t = torch.linspace(0., t_final, n_discrete_steps + 1, dtype=torch.float64)
+    if config.striding == 'linear':
+        pass
+    elif config.striding == 'quadratic':
+        t = t_final * torch.flip(1 - (t / t_final) ** 2., dims=[0])
+
+
+    sscs_step_fn = get_sscs_step_fn(config,sde)
+
     def sscs_sampler(model, u=None):
         ''' 
         The SSCS sampler takes analytical "half-steps" for the Ornstein--Uhlenbeck
@@ -463,9 +578,7 @@ def get_sscs_sampler(config, sde, sampling_shape, eps):
 
             for i in range(n_discrete_steps):
                 dt = t[i + 1] - t[i]
-                u = analytical_dynamics(u, t[i], dt, True)
-                u = euler_score_dynamics(model, u, t[i], dt, False)
-                u = analytical_dynamics(u, t[i], dt, True)
+                u = sscs_step_fn(model, u, t[i], dt)
 
             if config.denoising:
                 u = denoising_fn(model, u, 1.0 - eps)
